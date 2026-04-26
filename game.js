@@ -951,7 +951,7 @@
       ctx.font = 'bold 12px "Courier New"';
       ctx.fillStyle = '#00ff00';
       ctx.fillText('[ TAP CENTER TO START ]', canvas.width / 2, 60);
-      ctx.fillStyle = '#ffff00';
+      ctx.fillStyle = '#ff1493';
       ctx.fillText('[ PRESS L FOR LEADERBOARDS ]', canvas.width / 2, 135);
     }
 
