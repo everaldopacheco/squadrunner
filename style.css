@@ -142,17 +142,20 @@ body {
 #wallet-container {
   position: absolute;
   left: 50%;
-  bottom: 1%;
+  bottom: 1.5%;
   transform: translateX(-50%);
   z-index: 100;
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: auto;
+  min-width: 130px;
 }
 
 #connect-wallet-btn {
-  padding: 4px 12px;
-  font-size: 10px;
+  padding: 4px 10px;
+  font-size: 9px;
+  width: 100%;
 }
 
 .web3-btn {
@@ -176,13 +179,32 @@ body {
 }
 
 #wallet-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: rgba(0, 0, 0, 0.75);
+  padding: 5px 10px;
+  border: 1px solid #33ff33;
+  width: 100%;
+  box-sizing: border-box;
   margin-top: 5px;
-  font-size: 12px;
-  color: #00ff00;
-  text-shadow: 0 0 5px #00ff00;
-  background: rgba(0,0,0,0.6);
-  padding: 4px 8px;
-  border: 1px solid #00ff00;
+}
+
+#wallet-address {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: #33ff33;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+}
+
+#disconnect-wallet-btn {
+  font-size: 8px;
+  padding: 2px 6px;
+  width: auto;
+  min-width: 70px;
+  margin-top: 2px;
 }
 
 /* Save Score Modal */
