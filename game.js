@@ -535,10 +535,68 @@
     if (e.code === 'ArrowDown') stopDuck();
   });
 
-  // Touch / Click
+  // Touch / Mobile Controls
+  let touchStartX = 0;
+  let touchStartTime = 0;
+
   canvas.addEventListener('pointerdown', (e) => {
-    e.preventDefault();
-    doJump();
+    const rect = canvas.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * canvas.width;
+    const y = ((e.clientY - rect.top) / rect.height) * canvas.height;
+    
+    touchStartX = x;
+    touchStartTime = Date.now();
+
+    if (state === 'title') {
+      // Left side click
+      if (x < canvas.width / 3) {
+        currentCharIdx = (currentCharIdx - 1 + characters.length) % characters.length;
+        playSound('yippee');
+      } 
+      // Right side click
+      else if (x > (canvas.width / 3) * 2) {
+        currentCharIdx = (currentCharIdx + 1) % characters.length;
+        playSound('yippee');
+      }
+      // Center click starts game
+      else {
+        startGame();
+      }
+    } else if (state === 'playing') {
+      if (y < canvas.height / 2) {
+        doJump();
+      } else {
+        startDuck();
+      }
+    } else if (state === 'gameover') {
+      const modal = document.getElementById('save-score-modal');
+      if (!modal || modal.classList.contains('hidden')) {
+        startGame();
+      }
+    }
+  });
+
+  canvas.addEventListener('pointerup', (e) => {
+    if (state === 'playing') {
+      stopDuck();
+    }
+    
+    // Swipe Detection for Title
+    if (state === 'title') {
+      const rect = canvas.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * canvas.width;
+      const swipeDist = x - touchStartX;
+      const timeDist = Date.now() - touchStartTime;
+
+      if (timeDist < 300 && Math.abs(swipeDist) > 30) {
+        if (swipeDist > 0) { // Swipe Right -> Prev
+           currentCharIdx = (currentCharIdx - 1 + characters.length) % characters.length;
+        } else { // Swipe Left -> Next
+           currentCharIdx = (currentCharIdx + 1) % characters.length;
+        }
+        playSound('yippee');
+      }
+    }
   });
 
   // ─── Game lifecycle ──────────────────────────────────────────────────────
@@ -871,14 +929,25 @@
     ctx.fillText('SQUAD RUNNER', canvas.width / 2, 35);
     ctx.shadowBlur = 0;
 
+    // Mobile Arrows & Selection Hints
+    ctx.font = 'bold 20px "Courier New"';
+    ctx.fillStyle = '#00ffff';
+    const arrowY = groundY - 50;
+    const arrowPulse = Math.sin(frame * 0.1) * 5;
+    
+    // Left Arrow
+    ctx.fillText('<', 50 - arrowPulse, arrowY);
+    // Right Arrow
+    ctx.fillText('>', canvas.width - 50 + arrowPulse, arrowY);
+
     if (Math.floor(frame / 30) % 2 === 0) {
-      ctx.font = '12px "Courier New"';
+      ctx.font = '10px "Courier New"';
       ctx.fillStyle = '#ccaaff';
-      ctx.fillText('[ PRESS SPACE OR TAP TO START ]', canvas.width / 2, 60);
-      ctx.font = 'bold 11px "Courier New"';
-      ctx.fillStyle = '#ffff00';
-      ctx.fillText('[ PRESS C TO CHANGE CHARACTER ]', canvas.width / 2, 115);
+      ctx.fillText('[ SWIPE OR TAP SIDES TO CHANGE ]', canvas.width / 2, 115);
+      ctx.font = 'bold 12px "Courier New"';
       ctx.fillStyle = '#00ff00';
+      ctx.fillText('[ TAP CENTER TO START ]', canvas.width / 2, 60);
+      ctx.fillStyle = '#ffff00';
       ctx.fillText('[ PRESS L FOR LEADERBOARDS ]', canvas.width / 2, 135);
     }
 
