@@ -1,0 +1,256 @@
+/* ─── Reset & Base ──────────────────────────────── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  background: #1a0a0a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-family: 'Courier New', monospace;
+}
+
+/* Site background color */
+body {
+  background: #000;
+}
+
+/* ─── Scene Container ───────────────────────────── */
+#scene {
+  position: relative;
+  aspect-ratio: 2730 / 1536;
+  max-width: 100vw;
+  max-height: 100vh;
+  width: min(100vw, 177.734vh);
+}
+
+/* Monitor frame image */
+#bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  display: block;
+  pointer-events: none;
+}
+
+/* ─── Game Screen (CRT viewport) ────────────────── */
+#screen-wrap {
+  position: absolute;
+  left: 33.3%;
+  top: 23.3%;
+  width: 32%;
+  height: 45%;
+  border-radius: 8%;
+  overflow: hidden;
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.8);
+}
+
+#gameCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ─── CRT Effects ───────────────────────────────── */
+#crt-overlay {
+  position: absolute;
+  left: 33.3%;
+  top: 23.3%;
+  width: 32%;
+  height: 45%;
+  border-radius: 8%;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg,
+      rgba(0, 0, 0, 0.03) 0px,
+      rgba(0, 0, 0, 0.03) 1px,
+      transparent 1px,
+      transparent 2px);
+  z-index: 10;
+}
+
+#crt-glare {
+  background: radial-gradient(ellipse at 35% 25%, rgba(255, 255, 255, 0.05) 0%, transparent 60%);
+  z-index: 11;
+}
+
+/* ─── Clickable Stickers ────────────────────────── */
+.post-it-link {
+  position: absolute;
+  background: transparent;
+  padding: 0;
+  text-decoration: none;
+  z-index: 50;
+  display: block;
+  width: 75px;
+  height: 75px;
+  cursor: pointer;
+}
+
+#nft-sticker {
+  right: 31.5%;
+  bottom: 18.5%;
+  width: 150px;
+  height: 150px;
+  transform: rotate(3deg);
+  outline: none;
+  border: none;
+}
+
+
+/* ─── Leaderboard Overlay ───────────────────────── */
+.overlay {
+  position: absolute;
+  left: 33.3%;
+  top: 23.3%;
+  width: 32%;
+  height: 45%;
+  border-radius: 8%;
+  background: rgba(0,0,0,0.95);
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #ff00ff;
+  font-family: 'Courier New', Courier, monospace;
+  box-shadow: inset 0 0 50px rgba(0,255,0,0.1);
+}
+.overlay.hidden { display: none; }
+.overlay-content { text-align: center; width: 80%; }
+.overlay h2 { color: #00ff00; margin-bottom: 20px; font-size: 18px; text-shadow: 0 0 10px #00ff00; border-bottom: 1px solid #00ff00; padding-bottom: 5px; }
+.overlay ul { list-style: none; padding: 0; margin-bottom: 20px; text-align: left; }
+.overlay li { margin: 10px 0; font-size: 14px; text-shadow: 2px 2px #000; letter-spacing: 1px; }
+.overlay p { font-size: 12px; color: #fff; opacity: 0.7; }
+.blink { animation: blinker 1s linear infinite; }
+@keyframes blinker { 50% { opacity: 0; } }
+
+/* ─── Orientation Prompt (Hidden by default) ────── */
+#orientation-msg {
+  display: none;
+}
+
+/* ─── Web3 UI ───────────────────────────────────── */
+#wallet-container {
+  position: absolute;
+  left: 50%;
+  bottom: 1%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#connect-wallet-btn {
+  padding: 4px 12px;
+  font-size: 10px;
+}
+
+.web3-btn {
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid #ff00ff;
+  color: #ff00ff;
+  padding: 8px 16px;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);
+  text-transform: uppercase;
+}
+
+.web3-btn:hover {
+  background: #ff00ff;
+  color: #000;
+  box-shadow: 0 0 20px rgba(255, 0, 255, 0.6);
+}
+
+#wallet-info {
+  margin-top: 5px;
+  font-size: 12px;
+  color: #00ff00;
+  text-shadow: 0 0 5px #00ff00;
+  background: rgba(0,0,0,0.6);
+  padding: 4px 8px;
+  border: 1px solid #00ff00;
+}
+
+/* Save Score Modal */
+#save-score-modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(15, 5, 20, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 2px solid #ff00ff;
+  border-radius: 12px;
+  padding: 20px;
+  z-index: 200;
+  box-shadow: 0 0 30px rgba(255, 0, 255, 0.4);
+  width: 220px;
+  animation: modalPop 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+@keyframes modalPop {
+  0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+.modal-content h3 {
+  color: #ff00ff;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  margin: 0 0 20px 0;
+  text-shadow: 0 0 10px #ff00ff;
+  text-align: center;
+}
+
+.modal-btns {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.web3-btn.alt {
+  border-color: #555;
+  color: #888;
+  box-shadow: none;
+}
+
+.web3-btn.alt:hover {
+  background: #333;
+  color: #fff;
+  border-color: #fff;
+}
+
+.tx-explorer-link {
+  display: block;
+  color: #ff00ff;
+  text-decoration: none;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  margin-top: 10px;
+  text-align: center;
+  border: 1px dashed #ff00ff;
+  padding: 8px;
+  transition: all 0.2s;
+}
+
+.tx-explorer-link:hover {
+  background: rgba(255, 0, 255, 0.1);
+  box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);
+}
+
+.hidden { display: none !important; }

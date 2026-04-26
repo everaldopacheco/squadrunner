@@ -1,0 +1,9 @@
+node_modules/
+.DS_Store
+.env
+.gemini/
+artifacts/
+brain/
+implementation_plan.md
+task.md
+walkthrough.md
