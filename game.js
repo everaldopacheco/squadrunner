@@ -884,20 +884,20 @@
     ctx.fillStyle = '#ff88cc';
     ctx.strokeStyle = '#220011';
     ctx.lineWidth = 3;
-    const hiText = 'HIGH SCORE: ' + String(hiScore).padStart(5, '0');
+    const hiText = 'HI: ' + hiScore.toString().padStart(5, '0');
     ctx.strokeText(hiText, 10, 22);
     ctx.fillText(hiText, 10, 22);
     
     // Coins count
     ctx.fillStyle = '#ffd700';
-    const coinText = 'COINS ' + String(coinsCollectedTotal).padStart(3, '0');
+    const coinText = String(coinsCollectedTotal).padStart(3, '0');
     ctx.strokeText(coinText, 100, 22);
     ctx.fillText(coinText, 100, 22);
 
     // Current score
     ctx.textAlign = 'right';
     ctx.fillStyle = '#ffffff';
-    const scoreText = String(score).padStart(5, '0');
+    const scoreText = 'PTS: ' + Math.floor(score).toString().padStart(5, '0');
     ctx.strokeText(scoreText, canvas.width - 10, 22);
     ctx.fillText(scoreText, canvas.width - 10, 22);
     ctx.lineWidth = 1;
@@ -957,7 +957,7 @@
 
     ctx.font = '12px "Courier New"';
     ctx.fillStyle = '#ff88cc';
-    ctx.fillText('HIGH SCORE: ' + String(hiScore).padStart(5, '0'), canvas.width / 2, 80);
+    ctx.fillText('HI SCORE: ' + String(hiScore).padStart(5, '0'), canvas.width / 2, 80);
 
     // Controls hint
     ctx.font = '9px "Courier New"';
