@@ -878,47 +878,51 @@
     const barH = 34;
     ctx.fillRect(0, 0, canvas.width, barH);
 
-    // HIGHSCORE
+    // High Score (Left)
+    ctx.textAlign = 'left';
+    ctx.font = 'bold 20px "Courier New"'; // Larger font
     ctx.fillStyle = '#ff88cc';
     ctx.strokeStyle = '#220011';
-    ctx.lineWidth = 3;
-    const hiText = 'HIGHSCORE: ' + hiScore.toString().padStart(5, '0');
-    ctx.strokeText(hiText, 10, 22);
-    ctx.fillText(hiText, 10, 22);
+    ctx.lineWidth = 4;
+    const hiText = hiScore.toString().padStart(5, '0');
+    ctx.strokeText(hiText, 15, 25);
+    ctx.fillText(hiText, 15, 25);
     
-    // Coins count with Icon and Jackpot
-    const coinX = 135;
+    // Coin Section (Fixed Position)
+    const coinX = 110; 
     const isJackpot = coinsCollectedTotal > 0 && coinsCollectedTotal % 20 === 0;
     const isBlinking = isJackpot && Math.floor(frame / 6) % 2 === 0;
 
-    // Draw Coin Icon
+    // Draw Larger Coin Icon
     ctx.beginPath();
     ctx.fillStyle = '#ffd700';
-    ctx.arc(coinX - 12, 17, 6, 0, Math.PI * 2);
+    ctx.arc(coinX + 15, 18, 10, 0, Math.PI * 2); // Larger circle
     ctx.fill();
     ctx.fillStyle = '#fffabc';
-    ctx.arc(coinX - 14, 15, 2, 0, Math.PI * 2);
+    ctx.arc(coinX + 11, 14, 4, 0, Math.PI * 2); 
     ctx.fill();
 
     if (isBlinking) {
       ctx.fillStyle = '#00ffff';
-      ctx.shadowBlur = 15;
+      ctx.shadowBlur = 20;
       ctx.shadowColor = '#00ffff';
     } else {
       ctx.fillStyle = '#ffd700';
     }
 
-    const coinText = String(coinsCollectedTotal).padStart(3, '0');
-    ctx.strokeText(coinText, coinX, 22);
-    ctx.fillText(coinText, coinX, 22);
+    const coinText = coinsCollectedTotal.toString().padStart(3, '0');
+    ctx.font = 'bold 22px "Courier New"'; // Even larger for coins
+    ctx.strokeText(coinText, coinX + 35, 26);
+    ctx.fillText(coinText, coinX + 35, 26);
     ctx.shadowBlur = 0;
 
-    // Current score
+    // Current Score (Right)
     ctx.textAlign = 'right';
+    ctx.font = 'bold 20px "Courier New"';
     ctx.fillStyle = '#ffffff';
-    const scoreText = 'PTS: ' + Math.floor(score).toString().padStart(5, '0');
-    ctx.strokeText(scoreText, canvas.width - 10, 22);
-    ctx.fillText(scoreText, canvas.width - 10, 22);
+    const scoreText = Math.floor(score).toString().padStart(5, '0');
+    ctx.strokeText(scoreText, canvas.width - 15, 25);
+    ctx.fillText(scoreText, canvas.width - 15, 25);
     ctx.lineWidth = 1;
 
     // Boost Indicator
