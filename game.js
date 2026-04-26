@@ -513,8 +513,12 @@
       }
       doJump();
     }
-    if (e.code === 'KeyC' && state === 'title') {
+    if (e.code === 'KeyC' && state === 'title' || e.code === 'ArrowRight' && state === 'title') {
       currentCharIdx = (currentCharIdx + 1) % characters.length;
+      playSound('yippee');
+    }
+    if (e.code === 'ArrowLeft' && state === 'title') {
+      currentCharIdx = (currentCharIdx - 1 + characters.length) % characters.length;
       playSound('yippee');
     }
     if (e.code === 'KeyL' && state === 'title') {
