@@ -638,7 +638,7 @@
       e.x -= currentSpeed;
       // animate elite enemy
       if (e.elite) {
-        e.animFrame = Math.floor(frame / 10) % 5; // Slower animation (was /6)
+        e.animFrame = Math.floor(frame / 18) % 5; // Much slower (was /10)
         
         // Fireball logic: Shoot when elite is on screen
         if (!e.hasFired && e.x < canvas.width - 20) {
@@ -649,7 +649,7 @@
             w: 45,
             h: 30,
             isFire: true,
-            speed: currentSpeed * 1.15, // Slower (was 1.6)
+            speed: currentSpeed * 0.5, // Much slower (was 1.15)
             animFrame: 0
           });
         }
