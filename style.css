@@ -142,7 +142,7 @@ body {
 #wallet-container {
   position: absolute;
   left: 50%;
-  bottom: 1.5%;
+  bottom: 0.5%;
   transform: translateX(-50%);
   z-index: 100;
   display: flex;
