@@ -878,21 +878,40 @@
     const barH = 34;
     ctx.fillRect(0, 0, canvas.width, barH);
 
-    ctx.font = 'bold 13px "Courier New"';
-    ctx.textAlign = 'left';
-    // HI score
+    // HIGHSCORE
     ctx.fillStyle = '#ff88cc';
     ctx.strokeStyle = '#220011';
     ctx.lineWidth = 3;
-    const hiText = 'HI: ' + hiScore.toString().padStart(5, '0');
+    const hiText = 'HIGHSCORE: ' + hiScore.toString().padStart(5, '0');
     ctx.strokeText(hiText, 10, 22);
     ctx.fillText(hiText, 10, 22);
     
-    // Coins count
+    // Coins count with Icon and Jackpot
+    const coinX = 135;
+    const isJackpot = coinsCollectedTotal > 0 && coinsCollectedTotal % 20 === 0;
+    const isBlinking = isJackpot && Math.floor(frame / 6) % 2 === 0;
+
+    // Draw Coin Icon
+    ctx.beginPath();
     ctx.fillStyle = '#ffd700';
+    ctx.arc(coinX - 12, 17, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#fffabc';
+    ctx.arc(coinX - 14, 15, 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (isBlinking) {
+      ctx.fillStyle = '#00ffff';
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = '#00ffff';
+    } else {
+      ctx.fillStyle = '#ffd700';
+    }
+
     const coinText = String(coinsCollectedTotal).padStart(3, '0');
-    ctx.strokeText(coinText, 100, 22);
-    ctx.fillText(coinText, 100, 22);
+    ctx.strokeText(coinText, coinX, 22);
+    ctx.fillText(coinText, coinX, 22);
+    ctx.shadowBlur = 0;
 
     // Current score
     ctx.textAlign = 'right';
@@ -957,7 +976,7 @@
 
     ctx.font = '12px "Courier New"';
     ctx.fillStyle = '#ff88cc';
-    ctx.fillText('HI SCORE: ' + String(hiScore).padStart(5, '0'), canvas.width / 2, 80);
+    ctx.fillText('HIGHSCORE: ' + String(hiScore).padStart(5, '0'), canvas.width / 2, 80);
 
     // Controls hint
     ctx.font = '9px "Courier New"';
