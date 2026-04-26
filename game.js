@@ -17,6 +17,7 @@
     { run: [new Image(), new Image(), new Image()], jump: new Image(), duck: new Image() },
     { run: [new Image(), new Image(), new Image()], jump: new Image(), duck: new Image() },
     { run: [new Image(), new Image(), new Image()], jump: new Image(), duck: new Image() },
+    { run: [new Image(), new Image(), new Image()], jump: new Image(), duck: new Image() },
     { run: [new Image(), new Image(), new Image()], jump: new Image(), duck: new Image() }
   ];
   // Character 1
@@ -52,6 +53,13 @@
   characters[4].run[2].src = 'characters/p2-pose03.png';
   characters[4].jump.src = 'characters/p2-pose05.png';
   characters[4].duck.src = 'characters/p2-pose04.png';
+  
+  // Character 6 (Neon)
+  characters[5].run[0].src = 'characters/p6-pose1.png';
+  characters[5].run[1].src = 'characters/p6-pose2.png';
+  characters[5].run[2].src = 'characters/p6-pose3.png';
+  characters[5].jump.src = 'characters/p6-pose5.png';
+  characters[5].duck.src = 'characters/p6-pose4.png';
 
   let currentCharIdx = 0;
   
@@ -120,7 +128,8 @@
     "PARROT ROYAL", 
     "PARROT CHAD", 
     "PARROT JETPACK", 
-    "PARROT WHALE"
+    "PARROT WHALE",
+    "PARROT NEON"
   ];
 
   const player = {
