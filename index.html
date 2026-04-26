@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Squad Parrots Runner</title>
+  <meta name="description"
+    content="Squad Parrots Runner — an endless retro runner game with CRT aesthetics, day/night cycles, and pixel-art style.">
+  <link rel="stylesheet" href="style.css?v=7.5.1">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"
+    type="application/javascript"></script>
+</head>
+
+<body>
+
+  <div id="scene">
+    <img id="bg" src="assets/bg-site.png" alt="CRT Monitor Frame">
+    <div id="screen-wrap">
+      <canvas id="gameCanvas"></canvas>
+      <!-- Web3 UI inside Screen -->
+      <div id="wallet-container">
+        <button id="connect-wallet-btn" class="web3-btn">CONNECT WALLET</button>
+        <div id="wallet-info" class="hidden">
+          <span id="wallet-address">0x...</span>
+          <button id="disconnect-wallet-btn" class="web3-btn"
+            style="font-size: 10px; padding: 4px 8px; margin-top: 5px;">DISCONNECT</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Save Score Modal - Now centered in the screen -->
+    <div id="save-score-modal" class="hidden">
+      <div class="modal-content">
+        <div id="modal-question">
+          <h3>SAVE SCORE ON-CHAIN?</h3>
+          <div class="modal-btns">
+            <button id="save-yes-btn" class="web3-btn">YES</button>
+            <button id="save-no-btn" class="web3-btn alt">NO</button>
+          </div>
+        </div>
+        <div id="modal-success" class="hidden">
+          <h3 style="color: #00ff00; margin-bottom: 5px;">VICTORY! SAVED</h3>
+          <a id="tx-link" href="#" target="_blank" class="tx-explorer-link">VIEW TRANSACTION 🔗</a>
+          <button id="close-modal-btn" class="web3-btn"
+            style="margin-top: 15px; font-size: 8px; padding: 4px 8px;">CLOSE</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="crt-overlay"></div>
+  <div id="crt-glare"></div>
+
+  <div id="crt-glare"></div>
+
+  <a href="https://opensea.io/collection/the-10k-squad-350905768" target="_blank" id="nft-sticker" class="post-it-link"
+    title="Buy Your NFT Squad"></a>
+
+  <div id="leaderboard-overlay" class="overlay hidden">
+    <div class="overlay-content">
+      <h2>SQUAD HALL OF FAME</h2>
+      <ul id="score-list">
+        <li id="current-user-score" style="text-align: center; width: 100%;">HERO_YOU - 0</li>
+      </ul>
+      <p class="blink">PRESS ESC TO CLOSE</p>
+    </div>
+  </div>
+  </div>
+
+  <script src="web3.js?v=7.5.1"></script>
+  <script src="game.js?v=7.5.1"></script>
+</body>
+
+</html>
