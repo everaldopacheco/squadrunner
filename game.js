@@ -649,7 +649,7 @@
             w: 45,
             h: 30,
             isFire: true,
-            speed: currentSpeed * 1.6, // Faster than ground
+            speed: currentSpeed * 1.15, // Slower (was 1.6)
             animFrame: 0
           });
         }
