@@ -69,6 +69,12 @@
   enemy2Run[3].src = 'characters/v2-pose4.png';
   enemy2Run[4].src = 'characters/v2-pose5.png';
 
+  // Fire Projectile
+  const fireAnim = [new Image(), new Image(), new Image()];
+  fireAnim[0].src = 'characters/fogo-pose1.png';
+  fireAnim[1].src = 'characters/fogo-pose2.png';
+  fireAnim[2].src = 'characters/fogo-pose3.png';
+
   // ─── Game state ──────────────────────────────────────────────────────────
   let state = 'title';        // title | playing | gameover
   let frame = 0;
@@ -236,6 +242,7 @@
       flying: isFlying,
       static: isStatic,
       elite: isElite,
+      hasFired: false, // Elite enemies shoot once
       wobbleOffset: Math.random() * Math.PI * 2,
       wobbleAmp: 4 + Math.random() * 6,
       wobbleSpeed: 0.06 + Math.random() * 0.04,
@@ -631,7 +638,27 @@
       e.x -= currentSpeed;
       // animate elite enemy
       if (e.elite) {
-        e.animFrame = Math.floor(frame / 6) % 5;
+        e.animFrame = Math.floor(frame / 10) % 5; // Slower animation (was /6)
+        
+        // Fireball logic: Shoot when elite is on screen
+        if (!e.hasFired && e.x < canvas.width - 20) {
+          e.hasFired = true;
+          enemies.push({
+            x: e.x + 10,
+            y: e.y - e.h * 0.7, // Mouth height
+            w: 45,
+            h: 30,
+            isFire: true,
+            speed: currentSpeed * 1.6, // Faster than ground
+            animFrame: 0
+          });
+        }
+      }
+
+      // Fireball movement & animation
+      if (e.isFire) {
+        e.x -= e.speed;
+        e.animFrame = Math.floor(frame / 6) % 3;
       }
       // apply wobble for flying enemies
       if (e.flying) {
@@ -936,6 +963,8 @@
         let eImg = e.flying ? enemyAirImg : enemyGroundImg;
         if (e.elite) {
           eImg = enemy2Run[e.animFrame];
+        } else if (e.isFire) {
+          eImg = fireAnim[e.animFrame];
         }
 
         if (eImg && eImg.complete) {
