@@ -61,6 +61,14 @@
   const enemyAirImg = new Image();
   enemyAirImg.src = 'characters/v1-pose4.png';
 
+  // Second Enemy (Elite Runner)
+  const enemy2Run = [new Image(), new Image(), new Image(), new Image(), new Image()];
+  enemy2Run[0].src = 'characters/v2-pose1.png';
+  enemy2Run[1].src = 'characters/v2-pose2.png';
+  enemy2Run[2].src = 'characters/v2-pose3.png';
+  enemy2Run[3].src = 'characters/v2-pose4.png';
+  enemy2Run[4].src = 'characters/v2-pose5.png';
+
   // ─── Game state ──────────────────────────────────────────────────────────
   let state = 'title';        // title | playing | gameover
   let frame = 0;
@@ -210,8 +218,9 @@
   let enemies = [];
 
   function spawnEnemy() {
-    const isFlying = Math.random() < 0.30;
-    const isStatic = !isFlying && Math.random() < 0.40;
+    const isElite = score > 800 && Math.random() < 0.4; // 40% chance of elite enemy after 800 score
+    const isFlying = !isElite && Math.random() < 0.30;
+    const isStatic = !isElite && !isFlying && Math.random() < 0.40;
     
     // Larger enemies
     const h = isFlying ? 65 : (isStatic ? 40 : 75);
@@ -226,9 +235,11 @@
       h,
       flying: isFlying,
       static: isStatic,
+      elite: isElite,
       wobbleOffset: Math.random() * Math.PI * 2,
       wobbleAmp: 4 + Math.random() * 6,
       wobbleSpeed: 0.06 + Math.random() * 0.04,
+      animFrame: 0
     });
   }
 
@@ -618,6 +629,10 @@
     for (let i = enemies.length - 1; i >= 0; i--) {
       const e = enemies[i];
       e.x -= currentSpeed;
+      // animate elite enemy
+      if (e.elite) {
+        e.animFrame = Math.floor(frame / 6) % 5;
+      }
       // apply wobble for flying enemies
       if (e.flying) {
         e.y += Math.sin(frame * e.wobbleSpeed + e.wobbleOffset) * e.wobbleAmp * 0.15;
@@ -918,8 +933,12 @@
         ctx.stroke();
         ctx.lineWidth = 1;
       } else {
-        const eImg = e.flying ? enemyAirImg : enemyGroundImg;
-        if (eImg.complete) {
+        let eImg = e.flying ? enemyAirImg : enemyGroundImg;
+        if (e.elite) {
+          eImg = enemy2Run[e.animFrame];
+        }
+
+        if (eImg && eImg.complete) {
           drawImageNoWhite(eImg, e.x, e.y - e.h, e.w, e.h);
         }
       }
