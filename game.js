@@ -83,6 +83,11 @@
   fireAnim[1].src = 'characters/fogo-pose2.png';
   fireAnim[2].src = 'characters/fogo-pose3.png';
 
+  // Enemy 3 (Flying Sentry)
+  const enemy3Anim = [new Image(), new Image()];
+  enemy3Anim[0].src = 'characters/v3_pose1.png';
+  enemy3Anim[1].src = 'characters/v3-pose2.png';
+
   // ─── Game state ──────────────────────────────────────────────────────────
   let state = 'title';        // title | playing | gameover
   let frame = 0;
@@ -233,28 +238,29 @@
   let enemies = [];
 
   function spawnEnemy() {
-    const isElite = score > 800 && Math.random() < 0.4; // 40% chance of elite enemy after 800 score
-    const isFlying = !isElite && Math.random() < 0.30;
-    const isStatic = !isElite && !isFlying && Math.random() < 0.40;
+    const isElite = score > 800 && Math.random() < 0.35;
+    const isV3 = !isElite && score > 1200 && Math.random() < 0.25; // Sentry after 1200
+    const isFlying = !isElite && !isV3 && Math.random() < 0.25;
+    const isStatic = !isElite && !isFlying && !isV3 && Math.random() < 0.35;
     
-    // Larger enemies
-    const h = isFlying ? 65 : (isStatic ? 40 : 75);
-    const w = isFlying ? 70 : (isStatic ? 40 : 80);
+    const h = (isFlying || isV3) ? 65 : (isStatic ? 40 : 75);
+    const w = (isFlying || isV3) ? 70 : (isStatic ? 40 : 80);
     
-    const baseY = isFlying ? groundY - 60 - Math.random() * 40 : groundY;
+    const baseY = (isFlying || isV3) ? groundY - 65 - Math.random() * 50 : groundY;
     
     enemies.push({
       x: canvas.width + 50,
       y: baseY,
       w,
       h,
-      flying: isFlying,
+      flying: isFlying || isV3,
+      isV3: isV3,
       static: isStatic,
       elite: isElite,
-      hasFired: false, // Elite enemies shoot once
+      hasFired: false,
       wobbleOffset: Math.random() * Math.PI * 2,
-      wobbleAmp: 4 + Math.random() * 6,
-      wobbleSpeed: 0.06 + Math.random() * 0.04,
+      wobbleAmp: isV3 ? 8 : 5, // Sentry wobbles more
+      wobbleSpeed: isV3 ? 0.08 : 0.06,
       animFrame: 0
     });
   }
@@ -707,23 +713,24 @@
     for (let i = enemies.length - 1; i >= 0; i--) {
       const e = enemies[i];
       e.x -= currentSpeed;
-      // animate elite enemy
+      // Move enemies
       if (e.elite) {
-        e.animFrame = Math.floor(frame / 18) % 5; // Much slower (was /10)
-        
-        // Fireball logic: Shoot when elite is on screen
+        e.animFrame = Math.floor(frame / 18) % 5;
+        // Fire logic restoration
         if (!e.hasFired && e.x < canvas.width - 20) {
           e.hasFired = true;
           enemies.push({
             x: e.x + 10,
-            y: e.y - e.h * 0.7, // Mouth height
+            y: e.y - e.h * 0.7,
             w: 45,
             h: 30,
             isFire: true,
-            speed: currentSpeed * 0.5, // Much slower (was 1.15)
+            speed: currentSpeed * 0.5,
             animFrame: 0
           });
         }
+      } else if (e.isV3) {
+        e.animFrame = Math.floor(frame / 8) % 2;
       }
 
       // Fireball movement & animation
@@ -1068,6 +1075,8 @@
         let eImg = e.flying ? enemyAirImg : enemyGroundImg;
         if (e.elite) {
           eImg = enemy2Run[e.animFrame];
+        } else if (e.isV3) {
+          eImg = enemy3Anim[e.animFrame];
         } else if (e.isFire) {
           eImg = fireAnim[e.animFrame];
         }
