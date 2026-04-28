@@ -25,10 +25,8 @@ body {
 /* ─── Scene Container ───────────────────────────── */
 #scene {
   position: relative;
-  aspect-ratio: 2730 / 1536;
-  max-width: 100vw;
-  max-height: 100vh;
-  width: min(100vw, 177.734vh);
+  width: 100vw;
+  height: 100vh;
 }
 
 /* Monitor frame image */
