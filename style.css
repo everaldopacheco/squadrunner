@@ -45,9 +45,9 @@ body {
 /* ─── Game Screen (CRT viewport) ────────────────── */
 #screen-wrap {
   position: absolute;
-  left: 31.3%;
+  left: 33.3%;
   top: 23.3%;
-  width: 36%;
+  width: 32%;
   height: 45%;
   border-radius: 8%;
   overflow: hidden;
@@ -109,9 +109,9 @@ body {
 /* ─── Leaderboard Overlay ───────────────────────── */
 .overlay {
   position: absolute;
-  left: 31.3%;
+  left: 33.3%;
   top: 23.3%;
-  width: 36%;
+  width: 32%;
   height: 45%;
   border-radius: 8%;
   background: rgba(0,0,0,0.95);
