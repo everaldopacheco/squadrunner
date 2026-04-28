@@ -1082,7 +1082,15 @@
         }
 
         if (eImg && eImg.complete) {
-          drawImageNoWhite(eImg, e.x, e.y - e.h, e.w, e.h);
+          if (e.isV3) {
+            ctx.save();
+            ctx.translate(e.x + e.w / 2, e.y - e.h / 2);
+            ctx.scale(-1, 1);
+            drawImageNoWhite(eImg, -e.w / 2, -e.h / 2, e.w, e.h);
+            ctx.restore();
+          } else {
+            drawImageNoWhite(eImg, e.x, e.y - e.h, e.w, e.h);
+          }
         }
       }
     }

@@ -98,8 +98,8 @@ body {
 #nft-sticker {
   right: 31.5%;
   bottom: 18.5%;
-  width: 150px;
-  height: 150px;
+  width: clamp(60px, 10vw, 120px);
+  height: clamp(60px, 10vw, 120px);
   transform: rotate(3deg);
   outline: none;
   border: none;
