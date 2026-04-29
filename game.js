@@ -1385,4 +1385,16 @@
   window.addEventListener('mousedown', tryStartMusic, { once: true });
   window.addEventListener('keydown', tryStartMusic, { once: true });
 
+  // ─── Intro Screen Button ────────────────────────────────────────────
+  const introOverlay = document.getElementById('intro-overlay');
+  const introBtn = document.getElementById('intro-start-btn');
+  if (introBtn && introOverlay) {
+    introBtn.addEventListener('click', () => {
+      introOverlay.classList.add('fade-out');
+      // Resume audio on this user gesture
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      if (!musicInterval && !isMuted) startMusic();
+    });
+  }
+
 })();

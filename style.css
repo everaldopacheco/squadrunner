@@ -60,6 +60,160 @@ body {
   display: block;
 }
 
+/* ─── Intro Screen Overlay ──────────────────────── */
+#intro-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 12%;
+  overflow: hidden;
+  border-radius: 8%;
+  transition: opacity 600ms ease, visibility 600ms ease;
+  opacity: 1;
+  visibility: visible;
+}
+
+#intro-overlay.fade-out {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+#intro-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+/* Animated START Button — Neon pulse style */
+#intro-start-btn {
+  position: relative;
+  z-index: 2;
+  font-family: 'Bangers', 'Permanent Marker', 'Courier New', monospace;
+  font-size: clamp(14px, 3vw, 26px);
+  letter-spacing: 0.12em;
+  color: #fff;
+  background: linear-gradient(135deg, #ff59b3 0%, #b14bff 50%, #ff59b3 100%);
+  background-size: 200% 200%;
+  border: 3px solid rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  padding: 10px 28px;
+  cursor: pointer;
+  text-shadow:
+    0 0 8px rgba(255, 89, 179, 0.9),
+    0 0 20px rgba(177, 75, 255, 0.6),
+    0 2px 0 rgba(0, 0, 0, 0.4);
+  box-shadow:
+    6px 6px rgba(26, 5, 48, 0.7),
+    0 0 30px rgba(255, 95, 179, 0.65),
+    0 0 60px rgba(177, 75, 255, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  animation:
+    intro-btn-pulse 1.6s ease-in-out infinite,
+    intro-btn-shimmer 3s linear infinite,
+    intro-btn-float 2.4s ease-in-out infinite;
+  transform-origin: center bottom;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#intro-start-btn:hover {
+  transform: scale(1.08) translateY(-3px);
+  box-shadow:
+    8px 9px rgba(26, 5, 48, 0.7),
+    0 0 50px rgba(255, 95, 179, 0.9),
+    0 0 100px rgba(177, 75, 255, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  border-color: #fff;
+}
+
+#intro-start-btn:active {
+  transform: scale(0.97) translateY(2px);
+  box-shadow:
+    2px 2px rgba(26, 5, 48, 0.7),
+    0 0 20px rgba(255, 95, 179, 0.5),
+    0 0 40px rgba(177, 75, 255, 0.3);
+}
+
+/* Glow ring behind button */
+#intro-start-btn::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 16px;
+  border: 2px solid rgba(255, 89, 179, 0.4);
+  animation: intro-ring-pulse 1.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Shimmer sweep across button */
+#intro-start-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.25),
+    transparent
+  );
+  border-radius: 12px;
+  animation: intro-btn-sweep 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes intro-btn-pulse {
+  0%, 100% {
+    box-shadow:
+      6px 6px rgba(26, 5, 48, 0.7),
+      0 0 30px rgba(255, 95, 179, 0.65),
+      0 0 60px rgba(177, 75, 255, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    box-shadow:
+      8px 9px rgba(26, 5, 48, 0.7),
+      0 0 50px rgba(255, 95, 179, 0.95),
+      0 0 90px rgba(177, 75, 255, 0.65),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  }
+}
+
+@keyframes intro-btn-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
+
+@keyframes intro-btn-shimmer {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+@keyframes intro-btn-sweep {
+  0%   { left: -100%; opacity: 0; }
+  30%  { opacity: 1; }
+  100% { left: 150%; opacity: 0; }
+}
+
+@keyframes intro-ring-pulse {
+  0%, 100% {
+    border-color: rgba(255, 89, 179, 0.3);
+    box-shadow: 0 0 8px rgba(255, 89, 179, 0.2);
+  }
+  50% {
+    border-color: rgba(255, 89, 179, 0.7);
+    box-shadow: 0 0 20px rgba(255, 89, 179, 0.5);
+  }
+}
+
 /* ─── CRT Effects ───────────────────────────────── */
 #crt-overlay {
   position: absolute;

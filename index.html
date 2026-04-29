@@ -7,7 +7,10 @@
   <title>Squad Parrots Runner</title>
   <meta name="description"
     content="Squad Parrots Runner — an endless retro runner game with CRT aesthetics, day/night cycles, and pixel-art style.">
-  <link rel="stylesheet" href="style.css?v=7.6.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=7.7.0">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"
     type="application/javascript"></script>
 </head>
@@ -18,6 +21,11 @@
     <img id="bg" src="assets/bg-site.png" alt="CRT Monitor Frame">
     <div id="screen-wrap">
       <canvas id="gameCanvas"></canvas>
+      <!-- Intro Screen Overlay -->
+      <div id="intro-overlay">
+        <img src="assets/intro-screen.png" alt="Squad Runner Intro" id="intro-bg">
+        <button id="intro-start-btn">START RUUUUNNER</button>
+      </div>
       <!-- Web3 UI inside Screen -->
       <div id="wallet-container">
         <button id="connect-wallet-btn" class="web3-btn">CONNECT WALLET</button>
@@ -66,8 +74,8 @@
   </div>
   </div>
 
-  <script src="web3.js?v=7.6.0"></script>
-  <script src="game.js?v=7.6.0"></script>
+  <script src="web3.js?v=7.7.0"></script>
+  <script src="game.js?v=7.7.0"></script>
 </body>
 
 </html>
