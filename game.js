@@ -109,6 +109,21 @@
   let boostTimer = 0;
   const BOOST_DURATION = 180; // 3 seconds at 60fps
 
+  // ─── Parallax Background ──────────────────────────────────────────────
+  const PARALLAX_W = 1200;
+  const parallax = {
+    mountains: { speed: 0.08, offset: 0, points: [] },
+    buildings: { speed: 0.25, offset: 0, shapes: [] },
+    bushes:    { speed: 0.50, offset: 0, shapes: [] },
+  };
+
+  // ─── Death Slow-Mo State ──────────────────────────────────────────────
+  const DYING_DURATION = 80;  // frames of slow-mo (~1.3s real-time)
+  let dyingTimer = 0;
+  let shakeX = 0, shakeY = 0;
+  let shakeIntensity = 0;
+  let deathZoom = 1;
+
   // ─── Ground ──────────────────────────────────────────────────────────────
   const GROUND_OFFSET = 40;              // pixels from bottom for ground line
 
@@ -431,6 +446,110 @@
     }
   }
 
+  // ─── Parallax Generation ─────────────────────────────────────────────
+  function generateParallax() {
+    // Mountains: continuous heightmap
+    parallax.mountains.points = [];
+    parallax.mountains.offset = 0;
+    let mh = 30;
+    for (let x = 0; x <= PARALLAX_W; x += 6) {
+      mh += (Math.random() - 0.48) * 5;
+      mh = Math.max(12, Math.min(65, mh));
+      parallax.mountains.points.push({ x, h: mh });
+    }
+    // Buildings: rectangles
+    parallax.buildings.shapes = [];
+    parallax.buildings.offset = 0;
+    let bx = 0;
+    while (bx < PARALLAX_W) {
+      const w = 12 + Math.random() * 20;
+      const h = 16 + Math.random() * 42;
+      const gap = 3 + Math.random() * 8;
+      const nWin = Math.floor(h / 12);
+      const winLit = [];
+      for (let i = 0; i < nWin; i++) winLit.push(Math.random() > 0.4);
+      parallax.buildings.shapes.push({ x: bx, w, h, nWin, winLit });
+      bx += w + gap;
+    }
+    // Bushes: semi-circles
+    parallax.bushes.shapes = [];
+    parallax.bushes.offset = 0;
+    let sx = 0;
+    while (sx < PARALLAX_W) {
+      const r = 5 + Math.random() * 10;
+      sx += r * 2 + 4 + Math.random() * 14;
+      parallax.bushes.shapes.push({ x: sx, r });
+    }
+  }
+  generateParallax();
+
+  // ─── Draw Parallax ──────────────────────────────────────────────────
+  function drawParallax() {
+    const sky = getDaySkyColors();
+    const isNight = sky.stars > 0.3;
+    const sb = sky.bot;
+
+    // Layer 1: Mountains
+    const mOff = parallax.mountains.offset;
+    const mr = Math.max(0, sb[0] - 55);
+    const mg = Math.max(0, sb[1] - 35);
+    const mb = Math.min(255, sb[2] + 15);
+    ctx.fillStyle = isNight ? 'rgba(18,8,35,0.75)' : `rgba(${mr},${mg},${mb},0.45)`;
+    for (let copy = -1; copy <= 1; copy++) {
+      ctx.beginPath();
+      const dx = copy * PARALLAX_W - (mOff % PARALLAX_W);
+      ctx.moveTo(dx, groundY);
+      for (const p of parallax.mountains.points) ctx.lineTo(p.x + dx, groundY - p.h);
+      ctx.lineTo(PARALLAX_W + dx, groundY);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Layer 2: Buildings
+    const bOff = parallax.buildings.offset;
+    const bBaseCol = isNight ? [10, 5, 22] : [Math.max(0, sb[0] - 80), Math.max(0, sb[1] - 60), Math.max(0, sb[2] - 20)];
+    ctx.fillStyle = `rgba(${bBaseCol[0]},${bBaseCol[1]},${bBaseCol[2]},${isNight ? 0.85 : 0.35})`;
+    for (let copy = -1; copy <= 1; copy++) {
+      const dx = copy * PARALLAX_W - (bOff % PARALLAX_W);
+      for (const s of parallax.buildings.shapes) {
+        const bx = s.x + dx;
+        if (bx > canvas.width + 40 || bx + s.w < -40) continue;
+        ctx.fillRect(bx, groundY - s.h, s.w, s.h);
+      }
+      // Windows at night
+      if (isNight) {
+        for (const s of parallax.buildings.shapes) {
+          const bx = s.x + dx;
+          if (bx > canvas.width + 40 || bx + s.w < -40) continue;
+          for (let wi = 0; wi < s.nWin; wi++) {
+            if (!s.winLit[wi]) continue;
+            ctx.fillStyle = 'rgba(255,210,60,0.55)';
+            ctx.fillRect(bx + 3, groundY - s.h + 3 + wi * 12, 3, 5);
+            if (s.w > 16) ctx.fillRect(bx + s.w - 6, groundY - s.h + 3 + wi * 12, 3, 5);
+          }
+          ctx.fillStyle = `rgba(${bBaseCol[0]},${bBaseCol[1]},${bBaseCol[2]},0.85)`;
+        }
+      }
+    }
+
+    // Layer 3: Bushes
+    const sOff = parallax.bushes.offset;
+    ctx.fillStyle = isNight ? 'rgba(6,2,14,0.85)' : `rgba(25,45,18,0.4)`;
+    for (let copy = -1; copy <= 1; copy++) {
+      const dx = copy * PARALLAX_W - (sOff % PARALLAX_W);
+      for (const s of parallax.bushes.shapes) {
+        const bx = s.x + dx;
+        if (bx > canvas.width + 30 || bx + s.r * 2 < -30) continue;
+        ctx.beginPath();
+        ctx.arc(bx + s.r, groundY - s.r * 0.3, s.r, Math.PI, 0);
+        ctx.lineTo(bx + s.r * 2, groundY);
+        ctx.lineTo(bx, groundY);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+  }
+
   // ─── Collision ───────────────────────────────────────────────────────────
   function collides(a, b) {
     const ax = a.x - a.w / 2;
@@ -453,6 +572,7 @@
       startGame();
       return;
     }
+    if (state === 'dying') return;
     if (state === 'gameover') {
       resetGame();
       return;
@@ -512,6 +632,7 @@
 
     if (e.code === 'Space' || e.code === 'ArrowUp') {
       e.preventDefault();
+      if (state === 'dying') return;
       // Hide Modal if restarting
       if (state === 'gameover') {
         const modal = document.getElementById('save-score-modal');
@@ -578,6 +699,8 @@
       } else {
         startDuck();
       }
+    } else if (state === 'dying') {
+      // Block input during death slow-mo
     } else if (state === 'gameover') {
       const modal = document.getElementById('save-score-modal');
       if (!modal || modal.classList.contains('hidden')) {
@@ -625,6 +748,13 @@
     frame = 0;
     nextSpawn = 120;
     cycleFrame = 0;
+    // Reset death slow-mo
+    dyingTimer = 0;
+    shakeX = 0; shakeY = 0;
+    shakeIntensity = 0;
+    deathZoom = 1;
+    // Regenerate parallax for visual variety
+    generateParallax();
     startMusic();
     // resume audio context if suspended (browser requirement)
     if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -668,6 +798,11 @@
     
     // Boost effect: ultra speed + invincibility
     const currentSpeed = boostActive ? speed * 3.0 : speed;
+
+    // Update parallax offsets
+    parallax.mountains.offset += currentSpeed * parallax.mountains.speed;
+    parallax.buildings.offset += currentSpeed * parallax.buildings.speed;
+    parallax.bushes.offset    += currentSpeed * parallax.bushes.speed;
 
     // Gravity
     player.vy += GRAVITY;
@@ -747,39 +882,33 @@
         continue;
       }
       if (!boostActive && collides(player, e)) { // Invincibility during boost
-        state = 'gameover';
-        stopMusic();
-        
+        // ─── Enter slow-mo dying state ─────────────────────────
+        state = 'dying';
+        dyingTimer = 0;
+        shakeIntensity = 14;
+        deathZoom = 1;
+        player.dead = true;
+
+        // Sound
         if (score > hiScore) {
           hiScore = score;
           localStorage.setItem('squadHigh', String(hiScore));
-          playSound('hiScore'); // Yay!
+          playSound('hiScore');
         } else {
-          playSound('death'); // Fart
-          setTimeout(() => playSound('lose'), 150); // Faster Fail sound
+          playSound('death');
+          setTimeout(() => playSound('lose'), 150);
         }
-        player.dead = true;
-        
-        // Update high score & show modal
+
+        // Update high score
         if (score > hiScore) {
           hiScore = Math.floor(score);
           localStorage.setItem('squadRunner_hiScore', hiScore);
         }
-        
-        // Show Modern Save Score Modal & Reset to Question State
-        const modal = document.getElementById('save-score-modal');
-        const qDiv = document.getElementById('modal-question');
-        const sDiv = document.getElementById('modal-success');
-        if (modal) {
-          if (qDiv) qDiv.classList.remove('hidden');
-          if (sDiv) sDiv.classList.add('hidden');
-          modal.classList.remove('hidden');
-        }
 
-        // death explosion particles
-        spawnParticles(player.x, player.y - player.h / 2, 25,
-          ['#ff3399', '#ff69b4', '#ffaadd', '#ff1493', '#ffffff'],
-          [-5, 5], [-6, 2]);
+        // Large death explosion
+        spawnParticles(player.x, player.y - player.h / 2, 35,
+          ['#ff3399', '#ff69b4', '#ffaadd', '#ff1493', '#ffffff', '#ff0000'],
+          [-6, 6], [-8, 3]);
       }
     }
     
@@ -944,9 +1073,14 @@
 
   // ─── Draw Title Screen ───────────────────────────────────────────────────
   function drawTitle() {
-    ctx.fillStyle = '#0d0a1a';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Night sky + parallax on title too
+    drawSky();
+    drawParallax();
     drawGround();
+    // Slowly scroll parallax on title screen
+    parallax.mountains.offset += 0.3;
+    parallax.buildings.offset += 0.6;
+    parallax.bushes.offset    += 1.0;
     
     // Animate title screen character (selected)
     const char = characters[currentCharIdx];
@@ -1000,8 +1134,9 @@
 
   // ─── Draw Game ───────────────────────────────────────────────────────────
   function drawGame() {
-    // Day/night sky
+    // Day/night sky + parallax layers
     drawSky();
+    drawParallax();
     drawGround();
 
     // Coins
@@ -1136,14 +1271,99 @@
 
   // ─── Main render loop ────────────────────────────────────────────────────
   function loop() {
-    frame++;
-    update();
+    // ─── Dying slow-mo logic ──────────────────────────────────────────
+    if (state === 'dying') {
+      dyingTimer++;
+      frame++;
 
+      // Screen shake (decays over time)
+      shakeIntensity *= 0.93;
+      shakeX = (Math.random() - 0.5) * shakeIntensity;
+      shakeY = (Math.random() - 0.5) * shakeIntensity;
+
+      // Slow zoom-in toward player
+      deathZoom = 1 + (dyingTimer / DYING_DURATION) * 0.12;
+
+      // Slow-mo: update world every 6 real frames
+      if (dyingTimer % 6 === 0) {
+        updateParticles();
+        cycleFrame++;
+        const smSpeed = speed * 0.12;
+        for (const e of enemies) {
+          e.x -= smSpeed;
+          if (e.isFire) e.x -= smSpeed * 0.4;
+        }
+        for (const c of coins) c.x -= smSpeed;
+        parallax.mountains.offset += smSpeed * parallax.mountains.speed;
+        parallax.buildings.offset += smSpeed * parallax.buildings.speed;
+        parallax.bushes.offset    += smSpeed * parallax.bushes.speed;
+        // Gravity continues in slow-mo
+        player.vy += GRAVITY * 0.15;
+        player.y += player.vy * 0.15;
+        if (player.y >= groundY) { player.y = groundY; player.vy = 0; }
+      }
+
+      // Spawn extra lingering particles during slow-mo
+      if (dyingTimer % 10 === 0) {
+        spawnParticles(player.x, player.y - player.h / 2, 5,
+          ['#ff1493', '#ff69b4', '#ff3399', '#cc0066'],
+          [-3, 3], [-4, 1]);
+      }
+
+      // Transition to gameover after duration
+      if (dyingTimer >= DYING_DURATION) {
+        state = 'gameover';
+        stopMusic();
+        shakeX = 0; shakeY = 0;
+        shakeIntensity = 0;
+        deathZoom = 1;
+
+        // Show Save Score Modal
+        const modal = document.getElementById('save-score-modal');
+        const qDiv  = document.getElementById('modal-question');
+        const sDiv  = document.getElementById('modal-success');
+        if (modal) {
+          if (qDiv) qDiv.classList.remove('hidden');
+          if (sDiv) sDiv.classList.add('hidden');
+          modal.classList.remove('hidden');
+        }
+      }
+    } else {
+      frame++;
+      update();
+    }
+
+    // ─── Render ───────────────────────────────────────────────────────
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.save();
+    // Apply shake + zoom during dying
+    if (state === 'dying') {
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      ctx.translate(cx + shakeX, cy + shakeY);
+      ctx.scale(deathZoom, deathZoom);
+      ctx.translate(-cx, -cy);
+    }
 
     if (state === 'title') drawTitle();
     else if (state === 'playing') drawGame();
+    else if (state === 'dying') {
+      drawGame();
+      // Red vignette overlay that intensifies
+      const vigAlpha = Math.min(0.6, (dyingTimer / DYING_DURATION) * 0.65);
+      const grd = ctx.createRadialGradient(
+        canvas.width / 2, canvas.height / 2, canvas.width * 0.15,
+        canvas.width / 2, canvas.height / 2, canvas.width * 0.6
+      );
+      grd.addColorStop(0, 'rgba(0,0,0,0)');
+      grd.addColorStop(1, `rgba(180,0,30,${vigAlpha})`);
+      ctx.fillStyle = grd;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
     else if (state === 'gameover') drawGameOver();
+
+    ctx.restore();
 
     requestAnimationFrame(loop);
   }
