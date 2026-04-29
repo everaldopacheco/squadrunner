@@ -1120,12 +1120,12 @@
     }
 
     ctx.font = '12px "Courier New"';
-    ctx.fillStyle = '#ff88cc';
+    ctx.fillStyle = '#ffffff';
     ctx.fillText('HIGHSCORE: ' + String(hiScore).padStart(5, '0'), canvas.width / 2, 80);
 
     // Controls hint
     ctx.font = '9px "Courier New"';
-    ctx.fillStyle = 'rgba(200,150,255,0.7)';
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
     ctx.fillText('SPACE/UP = Jump | DOWN = Duck | 2x = Double Jump', canvas.width / 2, 100);
     
     // Increment frame for title animation
@@ -1281,8 +1281,7 @@
       shakeX = (Math.random() - 0.5) * shakeIntensity;
       shakeY = (Math.random() - 0.5) * shakeIntensity;
 
-      // Slow zoom-in toward player
-      deathZoom = 1 + (dyingTimer / DYING_DURATION) * 0.12;
+
 
       // Slow-mo: update world every 6 real frames
       if (dyingTimer % 6 === 0) {
@@ -1337,13 +1336,9 @@
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     ctx.save();
-    // Apply shake + zoom during dying
+    // Apply shake during dying
     if (state === 'dying') {
-      const cx = canvas.width / 2;
-      const cy = canvas.height / 2;
-      ctx.translate(cx + shakeX, cy + shakeY);
-      ctx.scale(deathZoom, deathZoom);
-      ctx.translate(-cx, -cy);
+      ctx.translate(shakeX, shakeY);
     }
 
     if (state === 'title') drawTitle();
