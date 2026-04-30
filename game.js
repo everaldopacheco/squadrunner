@@ -330,15 +330,16 @@
     if (player.dead || state !== 'playing') return;
     // Only spawn dust when touching ground
     if (player.y >= groundY - 5) {
+      const colors = ['#ffffff', '#cccccc', '#999999'];
       particles.push({
         x: player.x - 10,
-        y: groundY,
-        vx: -1 - Math.random() * 2, // Move backwards
-        vy: -0.5 - Math.random() * 1, // Move slightly up
-        life: 0.4 + Math.random() * 0.4,
-        decay: 0.01 + Math.random() * 0.02,
-        size: 1 + Math.random() * 3,
-        color: 'rgba(200, 200, 200, 0.4)', // Greyish dust
+        y: groundY - 2,
+        vx: -2 - Math.random() * 3, // Faster backwards
+        vy: -1 - Math.random() * 2, // More upward pop
+        life: 0.5 + Math.random() * 0.5,
+        decay: 0.02 + Math.random() * 0.04,
+        size: 2 + Math.random() * 2, // Slightly larger
+        color: colors[Math.floor(Math.random() * colors.length)],
         isDust: true
       });
     }
