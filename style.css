@@ -96,14 +96,14 @@ body {
   position: relative;
   z-index: 2;
   font-family: 'Bangers', 'Permanent Marker', 'Courier New', monospace;
-  font-size: clamp(14px, 3vw, 26px);
-  letter-spacing: 0.12em;
+  font-size: 18px; /* Fixed size to prevent it being too large */
+  letter-spacing: 0.1em;
   color: #fff;
   background: linear-gradient(135deg, #ff59b3 0%, #b14bff 50%, #ff59b3 100%);
   background-size: 200% 200%;
   border: 3px solid rgba(255, 255, 255, 0.5);
   border-radius: 12px;
-  padding: 10px 28px;
+  padding: 8px 20px;
   cursor: pointer;
   text-shadow:
     0 0 8px rgba(255, 89, 179, 0.9),
