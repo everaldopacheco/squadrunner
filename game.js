@@ -356,7 +356,7 @@
       for (let i = 0; i < count; i++) {
         // Semi-transparent greys for a softer look
         const colors = ['rgba(255,255,255,0.8)', 'rgba(200,200,200,0.6)', 'rgba(230,230,230,0.7)'];
-        const size = 2 + Math.random() * 3;
+        const size = 1 + Math.random() * 2;
         particles.push({
           x: player.x - 5 - Math.random() * 15,
           y: groundY - 2 - Math.random() * 4,
@@ -368,7 +368,7 @@
           color: colors[Math.floor(Math.random() * colors.length)],
           isDust: true,
           initialSize: size,
-          expansion: 1.2 + Math.random() * 1.5 // Expands over time
+          expansion: 0.6 + Math.random() * 1.0 // More subtle expansion
         });
       }
     }
