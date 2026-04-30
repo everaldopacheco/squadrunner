@@ -351,23 +351,24 @@
 
   function spawnDust() {
     if (player.dead || state !== 'playing') return;
-    // Only spawn dust when touching ground
     if (player.y >= groundY - 5) {
-      const count = 2 + Math.floor(Math.random() * 3); // More dust!
+      const count = 1 + Math.floor(Math.random() * 2);
       for (let i = 0; i < count; i++) {
-        const colors = ['#ffffff', '#cccccc', '#999999', '#eeeeee'];
-        const size = 3 + Math.random() * 4;
+        // Semi-transparent greys for a softer look
+        const colors = ['rgba(255,255,255,0.8)', 'rgba(200,200,200,0.6)', 'rgba(230,230,230,0.7)'];
+        const size = 2 + Math.random() * 3;
         particles.push({
-          x: player.x - 15 + Math.random() * 10,
-          y: groundY - 2,
-          vx: -2 - Math.random() * 4, // Faster backwards
-          vy: -1 - Math.random() * 3, // More upward pop
+          x: player.x - 5 - Math.random() * 15,
+          y: groundY - 2 - Math.random() * 4,
+          vx: -speed * 0.4 - Math.random() * 2, // Drifts back based on speed
+          vy: -0.2 - Math.random() * 1.5,      // Gentle upward drift
           life: 1.0,
-          decay: 0.04 + Math.random() * 0.06,
-          size: size, // Larger, crunchier particles
+          decay: 0.02 + Math.random() * 0.03, // Lasts longer
+          size: size,
           color: colors[Math.floor(Math.random() * colors.length)],
           isDust: true,
-          initialSize: size
+          initialSize: size,
+          expansion: 1.2 + Math.random() * 1.5 // Expands over time
         });
       }
     }
@@ -378,27 +379,32 @@
       const p = particles[i];
       p.x += p.vx;
       p.y += p.vy;
-      // Dust floats more, others fall faster
-      p.vy += p.isDust ? 0.01 : 0.15;
-      p.life -= p.decay;
       
-      // Arcade style: dust particles shrink as they fade
       if (p.isDust) {
-        p.size = p.initialSize * p.life;
+        p.vy *= 0.98; // Slow down vertical rise
+        p.vx *= 0.96; // Slow down horizontal drift
+        // Smoke expands as it rises/fades
+        p.size = p.initialSize + (p.expansion * (1 - p.life) * 10);
+      } else {
+        p.vy += 0.15; // Gravity for non-dust
       }
       
+      p.life -= p.decay;
       if (p.life <= 0) particles.splice(i, 1);
     }
   }
 
   function drawParticles() {
     for (const p of particles) {
-      // Shorter, sharper fade-out for arcade look
-      ctx.globalAlpha = p.life > 0.5 ? 1 : p.life * 2;
+      ctx.globalAlpha = p.life;
       ctx.fillStyle = p.color;
-      // Fixed pixel-perfect squares
-      const s = Math.max(1, Math.floor(p.size));
-      ctx.fillRect(Math.floor(p.x), Math.floor(p.y), s, s);
+      if (p.isDust) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, Math.max(0.1, p.size), 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.fillRect(p.x, p.y, p.size, p.size);
+      }
     }
     ctx.globalAlpha = 1;
   }
