@@ -1415,6 +1415,31 @@
   // Initialize Web3
   initWeb3();
 
+  // Volume Control Logic
+  const volBtn = document.getElementById('volume-btn');
+  if (volBtn) {
+    // Initial State from LocalStorage
+    if (localStorage.getItem('gameMuted') === 'true') {
+      isMuted = true;
+      volBtn.textContent = '🔇';
+    }
+
+    volBtn.addEventListener('click', (e) => {
+      e.stopPropagation(); 
+      isMuted = !isMuted;
+      if (isMuted) {
+        sfx.bgMusic.pause();
+        volBtn.textContent = '🔇';
+      } else {
+        volBtn.textContent = '🔊';
+        if (state !== 'dying' && state !== 'gameover') {
+          startMusic();
+        }
+      }
+      localStorage.setItem('gameMuted', isMuted);
+    });
+  }
+
   // Start loop immediately
   requestAnimationFrame(loop);
 
