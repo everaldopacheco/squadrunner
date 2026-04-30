@@ -430,3 +430,11 @@ body {
 }
 
 .hidden { display: none !important; }
+
+/* Mobile Optimizations */
+@media (max-width: 600px) {
+  #intro-start-btn {
+    font-size: 14px !important;
+    padding: 6px 14px !important;
+  }
+}
