@@ -198,6 +198,7 @@
   };
   sfx.bgMusic.loop = true;
   sfx.bgMusic.volume = 0.4;
+  sfx.bgMusic.load(); // Explicitly start loading
 
   function playSound(type) {
     if (isMuted) return;
@@ -292,7 +293,16 @@
   function startMusic() {
     if (isMuted) return;
     if (audioCtx.state === 'suspended') audioCtx.resume();
-    sfx.bgMusic.play().catch(e => console.log("Music play blocked:", e));
+    
+    // Some browsers require a re-load or a specific play call
+    const playPromise = sfx.bgMusic.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(e => {
+        console.log("Music play blocked or failed:", e);
+        // Fallback: try playing on next click
+        window.addEventListener('click', () => sfx.bgMusic.play(), { once: true });
+      });
+    }
   }
 
   // ─── Input ───────────────────────────────────────────────────────────────
