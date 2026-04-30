@@ -193,8 +193,11 @@
     death: new Audio('assets/sounds/perfect-fart.mp3'),
     yay: new Audio('assets/sounds/kids-saying-yay-sound-effect_3.mp3'),
     yippee: new Audio('assets/sounds/yippeeeeeeeeeeeeee.mp3'),
-    lose: new Audio('assets/sounds/wcgertcz074.mp3')
+    lose: new Audio('assets/sounds/wcgertcz074.mp3'),
+    bgMusic: new Audio('assets/sounds/soundtrack.mp3')
   };
+  sfx.bgMusic.loop = true;
+  sfx.bgMusic.volume = 0.4;
 
   function playSound(type) {
     if (isMuted) return;
@@ -281,47 +284,15 @@
   }
 
   // ─── Music ───────────────────────────────────────────────────────────────
-  let musicInterval = null;
-  const zeldaMelody = [
-    {n: 466.16, d: 0.2}, {n: 466.16, d: 0.2}, {n: 466.16, d: 0.2}, {n: 466.16, d: 0.6},
-    {n: 349.23, d: 0.6}, {n: 466.16, d: 0.3}, {n: 466.16, d: 0.1}, {n: 523.25, d: 0.1}, {n: 587.33, d: 0.1}, {n: 622.25, d: 0.1},
-    {n: 698.46, d: 0.8}, {n: 0, d: 0.2}
-  ];
-  let noteIdx = 0;
-
   function stopMusic() {
-    if (musicInterval) clearTimeout(musicInterval);
-    musicInterval = null;
+    sfx.bgMusic.pause();
+    sfx.bgMusic.currentTime = 0;
   }
 
   function startMusic() {
-    stopMusic();
-    noteIdx = 0;
-    playNextNote();
-  }
-
-  function playNextNote() {
-    if (isMuted) {
-      musicInterval = setTimeout(playNextNote, 500); // Wait and try again
-      return;
-    }
-    const note = zeldaMelody[noteIdx];
-    if (note.n > 0) {
-      const osc = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-      osc.type = 'square';
-      osc.frequency.setValueAtTime(note.n * 0.4, audioCtx.currentTime); // chiptune bass
-      g.gain.setValueAtTime(0.02, audioCtx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + note.d);
-      osc.connect(g);
-      g.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + note.d);
-    }
-    musicInterval = setTimeout(() => {
-      noteIdx = (noteIdx + 1) % zeldaMelody.length;
-      playNextNote();
-    }, note.d * 1000);
+    if (isMuted) return;
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    sfx.bgMusic.play().catch(e => console.log("Music play blocked:", e));
   }
 
   // ─── Input ───────────────────────────────────────────────────────────────
@@ -350,6 +321,25 @@
         decay: 0.02 + Math.random() * 0.03,
         size: 2 + Math.random() * 3,
         color: colors[Math.floor(Math.random() * colors.length)],
+        isDust: false
+      });
+    }
+  }
+
+  function spawnDust() {
+    if (player.dead || state !== 'playing') return;
+    // Only spawn dust when touching ground
+    if (player.y >= groundY - 5) {
+      particles.push({
+        x: player.x - 10,
+        y: groundY,
+        vx: -1 - Math.random() * 2, // Move backwards
+        vy: -0.5 - Math.random() * 1, // Move slightly up
+        life: 0.4 + Math.random() * 0.4,
+        decay: 0.01 + Math.random() * 0.02,
+        size: 1 + Math.random() * 3,
+        color: 'rgba(200, 200, 200, 0.4)', // Greyish dust
+        isDust: true
       });
     }
   }
@@ -359,7 +349,8 @@
       const p = particles[i];
       p.x += p.vx;
       p.y += p.vy;
-      p.vy += 0.15;
+      // Dust floats more, others fall faster
+      p.vy += p.isDust ? 0.01 : 0.15;
       p.life -= p.decay;
       if (p.life <= 0) particles.splice(i, 1);
     }
@@ -777,6 +768,11 @@
     // Animation cycle for player (synchronized with score/speed for fluidity)
     const animSpeed = boostActive ? 4 : 12; 
     player.animFrame = Math.floor(score / animSpeed) % 3;
+
+    // Spawn dust particles while running on ground
+    if (!player.jumping && !player.ducking && frame % 4 === 0) {
+      spawnDust();
+    }
     
     // Check for high score beaten signal
     if (!highScoreBeaten && hiScore > 0 && score > hiScore) {
@@ -1380,7 +1376,7 @@
   // Start music on first interaction
   const tryStartMusic = () => {
     if (audioCtx.state === 'suspended') audioCtx.resume();
-    if (state === 'title' && !musicInterval && !isMuted) startMusic();
+    if (state === 'title' && sfx.bgMusic.paused && !isMuted) startMusic();
   };
   window.addEventListener('mousedown', tryStartMusic, { once: true });
   window.addEventListener('keydown', tryStartMusic, { once: true });
@@ -1393,7 +1389,7 @@
       introOverlay.classList.add('fade-out');
       // Resume audio on this user gesture
       if (audioCtx.state === 'suspended') audioCtx.resume();
-      if (!musicInterval && !isMuted) startMusic();
+      if (sfx.bgMusic.paused && !isMuted) startMusic();
     });
   }
 
