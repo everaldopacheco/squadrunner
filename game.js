@@ -197,8 +197,9 @@
     bgMusic: new Audio('assets/sounds/soundtrack.mp3')
   };
   sfx.bgMusic.loop = true;
-  sfx.bgMusic.volume = 0.4;
-  sfx.bgMusic.load(); // Explicitly start loading
+  sfx.bgMusic.volume = 0.3; // Slightly lower default volume
+  sfx.bgMusic.preload = 'auto';
+  sfx.bgMusic.load(); 
 
   function playSound(type) {
     if (isMuted) return;
@@ -292,15 +293,27 @@
 
   function startMusic() {
     if (isMuted) return;
-    if (audioCtx.state === 'suspended') audioCtx.resume();
     
-    // Some browsers require a re-load or a specific play call
+    // Ensure AudioContext is active
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    
     const playPromise = sfx.bgMusic.play();
     if (playPromise !== undefined) {
       playPromise.catch(e => {
-        console.log("Music play blocked or failed:", e);
-        // Fallback: try playing on next click
-        window.addEventListener('click', () => sfx.bgMusic.play(), { once: true });
+        console.warn("Autoplay blocked. Waiting for interaction.", e);
+        // Robust interaction listener
+        const resumeAudio = () => {
+          sfx.bgMusic.play().then(() => {
+            document.removeEventListener('click', resumeAudio);
+            document.removeEventListener('keydown', resumeAudio);
+            document.removeEventListener('touchstart', resumeAudio);
+          });
+        };
+        document.addEventListener('click', resumeAudio);
+        document.addEventListener('keydown', resumeAudio);
+        document.addEventListener('touchstart', resumeAudio);
       });
     }
   }
@@ -340,18 +353,23 @@
     if (player.dead || state !== 'playing') return;
     // Only spawn dust when touching ground
     if (player.y >= groundY - 5) {
-      const colors = ['#ffffff', '#cccccc', '#999999'];
-      particles.push({
-        x: player.x - 10,
-        y: groundY - 2,
-        vx: -2 - Math.random() * 3, // Faster backwards
-        vy: -1 - Math.random() * 2, // More upward pop
-        life: 0.5 + Math.random() * 0.5,
-        decay: 0.02 + Math.random() * 0.04,
-        size: 2 + Math.random() * 2, // Slightly larger
-        color: colors[Math.floor(Math.random() * colors.length)],
-        isDust: true
-      });
+      const count = 2 + Math.floor(Math.random() * 3); // More dust!
+      for (let i = 0; i < count; i++) {
+        const colors = ['#ffffff', '#cccccc', '#999999', '#eeeeee'];
+        const size = 3 + Math.random() * 4;
+        particles.push({
+          x: player.x - 15 + Math.random() * 10,
+          y: groundY - 2,
+          vx: -2 - Math.random() * 4, // Faster backwards
+          vy: -1 - Math.random() * 3, // More upward pop
+          life: 1.0,
+          decay: 0.04 + Math.random() * 0.06,
+          size: size, // Larger, crunchier particles
+          color: colors[Math.floor(Math.random() * colors.length)],
+          isDust: true,
+          initialSize: size
+        });
+      }
     }
   }
 
@@ -363,15 +381,24 @@
       // Dust floats more, others fall faster
       p.vy += p.isDust ? 0.01 : 0.15;
       p.life -= p.decay;
+      
+      // Arcade style: dust particles shrink as they fade
+      if (p.isDust) {
+        p.size = p.initialSize * p.life;
+      }
+      
       if (p.life <= 0) particles.splice(i, 1);
     }
   }
 
   function drawParticles() {
     for (const p of particles) {
-      ctx.globalAlpha = p.life;
+      // Shorter, sharper fade-out for arcade look
+      ctx.globalAlpha = p.life > 0.5 ? 1 : p.life * 2;
       ctx.fillStyle = p.color;
-      ctx.fillRect(p.x, p.y, p.size, p.size);
+      // Fixed pixel-perfect squares
+      const s = Math.max(1, Math.floor(p.size));
+      ctx.fillRect(Math.floor(p.x), Math.floor(p.y), s, s);
     }
     ctx.globalAlpha = 1;
   }
@@ -1253,9 +1280,9 @@
 
     ctx.textAlign = 'center';
     ctx.font = 'bold 34px "Courier New"';
-    ctx.fillStyle = '#ff3399';
-    ctx.shadowColor = '#ff1493';
-    ctx.shadowBlur = 20;
+    ctx.fillStyle = '#ffffff'; // White for consistency
+    ctx.shadowColor = '#ffffff';
+    ctx.shadowBlur = 10;
     ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2 - 45);
     ctx.shadowBlur = 0;
 
@@ -1263,15 +1290,15 @@
     ctx.fillStyle = '#ffffff';
     ctx.fillText('SCORE: ' + score, canvas.width / 2, canvas.height / 2);
 
-    ctx.fillStyle = '#cc99ff';
+    ctx.fillStyle = '#ffffff'; // White
     ctx.fillText('HIGH SCORE: ' + hiScore, canvas.width / 2, canvas.height / 2 + 28);
 
     if (Math.floor(frame / 25) % 2 === 0) {
       ctx.font = '14px "Courier New"';
-      ctx.fillStyle = '#ff88cc';
+      ctx.fillStyle = '#ffffff'; // White
       ctx.fillText('[ PRESS SPACE TO RESTART ]', canvas.width / 2, canvas.height / 2 + 65);
       ctx.font = 'bold 11px "Courier New"';
-      ctx.fillStyle = '#ccaaff';
+      ctx.fillStyle = '#ffffff'; // White
       ctx.fillText('[ PRESS ESC FOR MENU ]', canvas.width / 2, canvas.height / 2 + 90);
     }
   }
