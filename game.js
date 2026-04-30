@@ -803,9 +803,10 @@
     cycleFrame++;
     score++;
     
-    // Animation cycle for player (synchronized with score/speed for fluidity)
-    const animSpeed = boostActive ? 4 : 12; 
-    player.animFrame = Math.floor(score / animSpeed) % 3;
+    // Animation cycle for player (Ping-pong 4-frame sequence: 0, 1, 2, 1)
+    const animSpeed = boostActive ? 3 : 10; 
+    const runFrames = [0, 1, 2, 1];
+    player.animFrame = runFrames[Math.floor(score / animSpeed) % 4];
 
     // Spawn dust particles while running on ground
     if (!player.jumping && !player.ducking && frame % 4 === 0) {
