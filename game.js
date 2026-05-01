@@ -18,7 +18,6 @@
     { run: [new Image(), new Image(), new Image()], jump: new Image(), duck: new Image() },
     { run: [new Image(), new Image(), new Image()], jump: new Image(), duck: new Image() },
     { run: [new Image(), new Image(), new Image()], jump: new Image(), duck: new Image() },
-    { run: [new Image(), new Image(), new Image()], jump: new Image(), duck: new Image() },
     { run: [new Image(), new Image(), new Image()], jump: new Image(), duck: new Image() }
   ];
   // Character 1
@@ -61,13 +60,6 @@
   characters[5].run[2].src = 'characters/p6-pose3.png';
   characters[5].jump.src = 'characters/p6-pose5.png';
   characters[5].duck.src = 'characters/p6-pose4.png';
-
-  // Character 7 (HARRY PERROT - LOCKED)
-  characters[6].run[0].src = 'characters/p7-pose01.png';
-  characters[6].run[1].src = 'characters/p7-pose02.png';
-  characters[6].run[2].src = 'characters/p7-pose03.png';
-  characters[6].jump.src = 'characters/p7-pose05.png';
-  characters[6].duck.src = 'characters/p7-pose04.png';
 
   let currentCharIdx = 0;
   
@@ -157,8 +149,7 @@
     "PARROT CHAD", 
     "PARROT JETPACK", 
     "PARROT WHALE",
-    "PARROT NEON",
-    "HARRY PERROT"
+    "PARROT NEON"
   ];
 
   const player = {
@@ -1147,31 +1138,11 @@
     ctx.fillText('SQUAD RUNNER', canvas.width / 2, 35);
     ctx.shadowBlur = 0;
 
-    // Lock Overlay for special characters
-    const isLocked = (currentCharIdx === 6 && typeof window.getHas10kNFT === 'function' && !window.getHas10kNFT());
-    if (isLocked) {
-        // Character is dimmed slightly instead of a grey box
-        ctx.globalAlpha = 0.5;
-        const char = characters[currentCharIdx];
-        const tFrame = Math.floor(frame / 12) % 3;
-        if (char.run[tFrame].complete) {
-          drawImageNoWhite(char.run[tFrame], canvas.width / 2 - 45, groundY - 90, 90, 90);
-        }
-        ctx.globalAlpha = 1.0;
-
-        ctx.font = '24px "Courier New"';
-        ctx.fillText('🔒', canvas.width / 2, groundY - 50);
-        
-        ctx.font = 'bold 10px "Courier New"';
-        ctx.fillStyle = '#ff00ff';
-        ctx.fillText('EXCLUSIVE: THE 10K SQUAD NFT', canvas.width / 2, groundY - 105);
-    } else {
-        // Draw normal character
-        const char = characters[currentCharIdx];
-        const tFrame = Math.floor(frame / 12) % 3;
-        if (char.run[tFrame].complete) {
-          drawImageNoWhite(char.run[tFrame], canvas.width / 2 - 45, groundY - 90, 90, 90);
-        }
+    // Selection logic draws characters normally now
+    const char = characters[currentCharIdx];
+    const tFrame = Math.floor(frame / 12) % 3;
+    if (char.run[tFrame].complete) {
+      drawImageNoWhite(char.run[tFrame], canvas.width / 2 - 45, groundY - 90, 90, 90);
     }
 
     // Mobile Arrows & Selection Hints
@@ -1491,21 +1462,7 @@
   const introOverlay = document.getElementById('intro-overlay');
   const introBtn = document.getElementById('intro-start-btn');
   if (introBtn && introOverlay) {
-    introBtn.addEventListener('click', async () => {
-      // Force a quick NFT re-check if connected
-      if (typeof window.checkNFTOwnership === 'function') {
-        await window.checkNFTOwnership();
-      }
-
-      // Check if current character is locked
-      const isLocked = (currentCharIdx === 6 && typeof window.getHas10kNFT === 'function' && !window.getHas10kNFT());
-      console.log("Start Button Clicked - CharIdx:", currentCharIdx, "isLocked:", isLocked);
-
-      if (isLocked) {
-        alert("🔒 HARRY PERROT is exclusive to 'The 10K Squad' NFT holders!\n\nConnect a wallet with the NFT to unlock.");
-        return;
-      }
-      
+    introBtn.addEventListener('click', () => {
       introOverlay.classList.add('fade-out');
       // Resume audio on this user gesture
       if (audioCtx.state === 'suspended') audioCtx.resume();

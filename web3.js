@@ -9,10 +9,6 @@ const ABI = [
 
 let provider, signer, contract;
 let userAddress = null;
-let has10kNFT = false;
-
-const NFT_COLLECTION_ADDRESS = '0x818030837E8350ba63E64d7dC01A547fA73c8279'; // Verified 10K Squad contract on Monad
-const ERC721_ABI = ["function balanceOf(address owner) view returns (uint256)"];
 
 // ─── Web3 Initialization ──────────────────────────────────────────────
 async function initWeb3() {
@@ -90,20 +86,6 @@ function updateWalletUI() {
   } else {
     if (connBtn) connBtn.classList.remove('hidden');
     if (info) info.classList.add('hidden');
-    has10kNFT = false;
-  }
-}
-
-async function checkNFTOwnership() {
-  if (!userAddress || !provider) return;
-  try {
-    const nftContract = new ethers.Contract(NFT_COLLECTION_ADDRESS, ERC721_ABI, provider);
-    const balance = await nftContract.balanceOf(userAddress);
-    has10kNFT = balance.gt(0);
-    console.log("10K Squad NFT Balance:", balance.toString(), "Access:", has10kNFT);
-  } catch (e) {
-    console.warn("NFT check failed:", e.message);
-    has10kNFT = false;
   }
 }
 
@@ -153,7 +135,6 @@ async function connectWallet() {
 
     updateWalletUI();
     fetchLeaderboard();
-    await checkNFTOwnership();
     
     alert("Wallet Verified & Connected!");
   } catch (err) {
@@ -250,8 +231,7 @@ function renderLeaderboard(scores) {
     "PARROT CHAD", 
     "PARROT JETPACK", 
     "PARROT WHALE",
-    "PARROT NEON",
-    "HARRY PERROT"
+    "PARROT NEON"
   ];
 
   list.innerHTML = '';
@@ -282,5 +262,3 @@ initWeb3();
 window.connectWallet = connectWallet;
 window.submitScoreToChain = submitScoreToChain;
 window.fetchLeaderboard = fetchLeaderboard;
-window.checkNFTOwnership = checkNFTOwnership;
-window.getHas10kNFT = () => has10kNFT;
