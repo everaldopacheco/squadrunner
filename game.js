@@ -1033,9 +1033,17 @@
     const d = id.data;
     for (let i = 0; i < d.length; i += 4) {
       const r = d[i], g = d[i+1], b = d[i+2];
-      const brightness = (r + g + b) / 3;
-      if (brightness > 245 && r > 240 && g > 240 && b > 240) {
+      // Remove pure white or near-white
+      if (r > 240 && g > 240 && b > 240) {
         d[i+3] = 0;
+        continue;
+      }
+      // Remove common checkerboard grey (around 190-210)
+      if (r > 180 && r < 220 && g > 180 && g < 220 && b > 180 && b < 220) {
+        // Only if it's very grey (r, g, b are close to each other)
+        if (Math.abs(r - g) < 10 && Math.abs(g - b) < 10) {
+          d[i+3] = 0;
+        }
       }
     }
     tc.putImageData(id, 0, 0);
@@ -1483,11 +1491,18 @@
   const introOverlay = document.getElementById('intro-overlay');
   const introBtn = document.getElementById('intro-start-btn');
   if (introBtn && introOverlay) {
-    introBtn.addEventListener('click', () => {
+    introBtn.addEventListener('click', async () => {
+      // Force a quick NFT re-check if connected
+      if (typeof window.checkNFTOwnership === 'function') {
+        await window.checkNFTOwnership();
+      }
+
       // Check if current character is locked
       const isLocked = (currentCharIdx === 6 && typeof window.getHas10kNFT === 'function' && !window.getHas10kNFT());
+      console.log("Start Button Clicked - CharIdx:", currentCharIdx, "isLocked:", isLocked);
+
       if (isLocked) {
-        alert("This character requires 'The 10K Squad' NFT!");
+        alert("🔒 HARRY PERROT is exclusive to 'The 10K Squad' NFT holders!\n\nConnect a wallet with the NFT to unlock.");
         return;
       }
       

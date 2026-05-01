@@ -282,4 +282,5 @@ initWeb3();
 window.connectWallet = connectWallet;
 window.submitScoreToChain = submitScoreToChain;
 window.fetchLeaderboard = fetchLeaderboard;
+window.checkNFTOwnership = checkNFTOwnership;
 window.getHas10kNFT = () => has10kNFT;
