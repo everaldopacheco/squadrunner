@@ -1,14 +1,17 @@
 // ─── Web3 Configuration ──────────────────────────────────────────────────
 const CONTRACT_ADDRESS = '0xB61F6dfD38C09A4eE430a183343adcEE9e4c9683'; // NEW RESET CONTRACT
+const NFT_CONTRACT_ADDRESS = '0x818030837e8350ba63e64d7dc01a547fa73c8279'; // The 10K Squad Collection
 const CHAIN_ID = 10143; // Monad Testnet
 const ABI = [
   "function submitScore(uint32 score, uint8 charId, bytes calldata signature) external",
   "function getLeaderboard() external view returns (tuple(address player, uint32 score, uint8 charId, uint32 timestamp)[] memory)",
   "function bestScore(address) view returns (uint32)"
 ];
+const ERC721_ABI = ["function balanceOf(address owner) view returns (uint256)"];
 
 let provider, signer, contract;
 let userAddress = null;
+window.hasNftAccess = false;
 
 // ─── Web3 Initialization ──────────────────────────────────────────────
 async function initWeb3() {
@@ -59,6 +62,7 @@ async function initWeb3() {
         signer = provider.getSigner();
         contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
         updateWalletUI();
+        checkNftOwnership(); // Check NFT on auto-connect
       }
     } catch (e) {
       console.log("Auto-connect check skipped:", e.message);
@@ -71,7 +75,21 @@ function disconnectWallet() {
   signer = null;
   contract = null;
   updateWalletUI();
+  window.hasNftAccess = false;
   alert("Wallet Disconnected.");
+}
+
+async function checkNftOwnership() {
+  if (!userAddress || !provider) return;
+  try {
+    const nftContract = new ethers.Contract(NFT_CONTRACT_ADDRESS, ERC721_ABI, provider);
+    const balance = await nftContract.balanceOf(userAddress);
+    window.hasNftAccess = balance > 0;
+    console.log("NFT Access Verified:", window.hasNftAccess);
+  } catch (e) {
+    console.warn("NFT check failed:", e);
+    window.hasNftAccess = false;
+  }
 }
 
 function updateWalletUI() {
@@ -135,6 +153,7 @@ async function connectWallet() {
 
     updateWalletUI();
     fetchLeaderboard();
+    await checkNftOwnership();
     
     alert("Wallet Verified & Connected!");
   } catch (err) {
@@ -230,7 +249,9 @@ function renderLeaderboard(scores) {
     "PARROT ROYAL", 
     "PARROT CHAD", 
     "PARROT JETPACK", 
-    "PARROT WHALE"
+    "PARROT WHALE",
+    "PARROT NEON",
+    "HARRY PERROT"
   ];
 
   list.innerHTML = '';
