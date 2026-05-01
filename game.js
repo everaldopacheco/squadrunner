@@ -19,7 +19,7 @@
     { run: [new Image(), new Image(), new Image()], jump: new Image(), duck: new Image() },
     { run: [new Image(), new Image(), new Image()], jump: new Image(), duck: new Image() },
     { run: [new Image(), new Image(), new Image()], jump: new Image(), duck: new Image() },
-    { run: [new Image(), new Image(), new Image()], jump: new Image(), duck: new Image(), nameImg: new Image() }
+    { run: [new Image(), new Image(), new Image()], jump: new Image(), duck: new Image() }
   ];
   // Character 1
   characters[0].run[0].src = 'characters/p1-pose1.png';
@@ -61,24 +61,13 @@
   characters[5].run[2].src = 'characters/p6-pose3.png';
   characters[5].jump.src = 'characters/p6-pose5.png';
   characters[5].duck.src = 'characters/p6-pose4.png';
-  
-  // Character 7 (Harry Perrot - EXCLUSIVE)
+
+  // Character 7 (HARRY PERROT - LOCKED)
   characters[6].run[0].src = 'characters/p7-pose01.png';
   characters[6].run[1].src = 'characters/p7-pose02.png';
   characters[6].run[2].src = 'characters/p7-pose03.png';
   characters[6].jump.src = 'characters/p7-pose05.png';
   characters[6].duck.src = 'characters/p7-pose04.png';
-  characters[6].nameImg.src = 'characters/harry-perrot.png';
-  
-  const CHAR_NAMES = [
-    "PARROT TRADOOOOR", 
-    "PARROT ROYAL", 
-    "PARROT CHAD", 
-    "PARROT JETPACK", 
-    "PARROT WHALE",
-    "PARROT NEON",
-    "HARRY PERROT"
-  ];
 
   let currentCharIdx = 0;
   
@@ -162,6 +151,15 @@
   const JUMP_FORCE = -15;
   const GRAVITY = 0.55;
   const MAX_JUMPS = 2;
+  const CHAR_NAMES = [
+    "PARROT TRADOOOOR", 
+    "PARROT ROYAL", 
+    "PARROT CHAD", 
+    "PARROT JETPACK", 
+    "PARROT WHALE",
+    "PARROT NEON",
+    "HARRY PERROT"
+  ];
 
   const player = {
     x: 80,
@@ -737,11 +735,6 @@
       }
       // Center click starts game
       else {
-        console.log("Center click at", x, y, "currentCharIdx:", currentCharIdx, "hasNft:", window.hasNftAccess);
-        if (currentCharIdx === 6 && !window.hasNftAccess) {
-          if (typeof playSound === 'function') playSound('collision');
-          return;
-        }
         startGame();
       }
     } else if (state === 'playing') {
@@ -1141,60 +1134,31 @@
     
     // Animate title screen character (selected)
     const char = characters[currentCharIdx];
-    const isLocked = (currentCharIdx === 6 && !window.hasNftAccess);
     const tFrame = Math.floor(frame / 12) % 3;
-
     if (char.run[tFrame].complete) {
-      if (isLocked) {
-        ctx.save();
-        // Use a more compatible way to fade the character
-        ctx.globalAlpha = 0.6;
-        ctx.filter = 'grayscale(100%)';
-      }
       drawImageNoWhite(char.run[tFrame], canvas.width / 2 - 45, groundY - 90, 90, 90);
-      if (isLocked) {
-        ctx.restore();
-        // Draw Lock Overlay
-        ctx.font = '40px Arial';
-        ctx.fillText('🔒', canvas.width / 2, groundY - 60);
-      }
-    } else {
-      // FALLBACK: Draw a colored box if image is still loading
-      ctx.fillStyle = isLocked ? '#444' : '#ff00ff';
-      ctx.fillRect(canvas.width / 2 - 30, groundY - 70, 60, 60);
-      ctx.fillStyle = '#fff';
-      ctx.font = '10px Arial';
-      ctx.fillText('LOADING...', canvas.width / 2, groundY - 40);
-      // Log for debug (user can see this in dev tools)
-      if (frame % 60 === 0) console.log("Character image not complete:", currentCharIdx, char.run[tFrame].src);
     }
 
-    // Draw Character Name Image (Special for Harry Perrot)
-    if (char.nameImg && char.nameImg.complete) {
-      const namePulse = Math.sin(frame * 0.05) * 2;
-      drawImageNoWhite(char.nameImg, canvas.width / 2 - 60 - namePulse, 42 - namePulse/2, 120 + namePulse*2, 35 + namePulse);
-    }
-
-    // Title
     ctx.textAlign = 'center';
     ctx.font = 'bold 28px "Courier New"';
     ctx.fillStyle = '#ff69b4';
     ctx.shadowColor = '#ff1493';
     ctx.shadowBlur = 15;
-    ctx.fillText('SQUAD RUNNER', canvas.width / 2, 28);
+    ctx.fillText('SQUAD RUNNER', canvas.width / 2, 35);
     ctx.shadowBlur = 0;
 
-    // Draw Character Name Text
-    ctx.font = 'bold 16px "Courier New"';
-    ctx.fillStyle = '#fff';
-    ctx.shadowBlur = 5;
-    ctx.fillText(CHAR_NAMES[currentCharIdx], canvas.width / 2, 65);
-    ctx.shadowBlur = 0;
-    
-    // Debug info for character count
-    ctx.font = '10px Arial';
-    ctx.fillStyle = 'rgba(255,255,255,0.3)';
-    ctx.fillText(`PARROTS: ${characters.length}`, 40, 15);
+    // Lock Overlay for special characters
+    const isLocked = (currentCharIdx === 6 && typeof window.getHas10kNFT === 'function' && !window.getHas10kNFT());
+    if (isLocked) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+        ctx.fillRect(canvas.width / 2 - 45, groundY - 110, 90, 110);
+        ctx.font = '24px "Courier New"';
+        ctx.fillText('🔒', canvas.width / 2, groundY - 50);
+        
+        ctx.font = 'bold 8px "Courier New"';
+        ctx.fillStyle = '#ff00ff';
+        ctx.fillText('LOCK: THE 10K SQUAD NFT', canvas.width / 2, groundY - 105);
+    }
 
     // Mobile Arrows & Selection Hints
     ctx.font = 'bold 20px "Courier New"';
@@ -1211,17 +1175,9 @@
       ctx.font = '10px "Courier New"';
       ctx.fillStyle = '#ccaaff';
       ctx.fillText('[ SWIPE OR TAP SIDES TO CHANGE ]', canvas.width / 2, 115);
-      
-      if (isLocked) {
-        ctx.font = 'bold 12px "Courier New"';
-        ctx.fillStyle = '#ff4444';
-        ctx.fillText('HOLD 10K SQUAD NFT TO UNLOCK', canvas.width / 2, 60);
-      } else {
-        ctx.font = 'bold 12px "Courier New"';
-        ctx.fillStyle = '#00ff00';
-        ctx.fillText('[ TAP CENTER TO START ]', canvas.width / 2, 60);
-      }
-      
+      ctx.font = 'bold 12px "Courier New"';
+      ctx.fillStyle = '#00ff00';
+      ctx.fillText('[ TAP CENTER TO START ]', canvas.width / 2, 60);
       ctx.fillStyle = '#ff1493';
       ctx.fillText('[ PRESS L FOR LEADERBOARDS ]', canvas.width / 2, 135);
     }
@@ -1522,14 +1478,14 @@
   const introBtn = document.getElementById('intro-start-btn');
   if (introBtn && introOverlay) {
     introBtn.addEventListener('click', () => {
-      console.log("Intro button clicked");
+      // Check if current character is locked
+      const isLocked = (currentCharIdx === 6 && typeof window.getHas10kNFT === 'function' && !window.getHas10kNFT());
+      if (isLocked) {
+        alert("This character requires 'The 10K Squad' NFT!");
+        return;
+      }
+      
       introOverlay.classList.add('fade-out');
-      // Set state to title explicitly
-      state = 'title';
-      // Remove from layout after fade to prevent blocking clicks
-      setTimeout(() => {
-        introOverlay.style.display = 'none';
-      }, 650);
       // Resume audio on this user gesture
       if (audioCtx.state === 'suspended') audioCtx.resume();
       if (sfx.bgMusic.paused && !isMuted) startMusic();

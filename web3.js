@@ -1,17 +1,18 @@
 // ─── Web3 Configuration ──────────────────────────────────────────────────
 const CONTRACT_ADDRESS = '0xB61F6dfD38C09A4eE430a183343adcEE9e4c9683'; // NEW RESET CONTRACT
-const NFT_CONTRACT_ADDRESS = '0x818030837e8350ba63e64d7dc01a547fa73c8279'; // The 10K Squad Collection
 const CHAIN_ID = 10143; // Monad Testnet
 const ABI = [
   "function submitScore(uint32 score, uint8 charId, bytes calldata signature) external",
   "function getLeaderboard() external view returns (tuple(address player, uint32 score, uint8 charId, uint32 timestamp)[] memory)",
   "function bestScore(address) view returns (uint32)"
 ];
-const ERC721_ABI = ["function balanceOf(address owner) view returns (uint256)"];
 
 let provider, signer, contract;
 let userAddress = null;
-window.hasNftAccess = false;
+let has10kNFT = false;
+
+const NFT_COLLECTION_ADDRESS = '0x818030837E8350ba63E64d7dC01A547fA73c8279'; // Verified 10K Squad contract on Monad
+const ERC721_ABI = ["function balanceOf(address owner) view returns (uint256)"];
 
 // ─── Web3 Initialization ──────────────────────────────────────────────
 async function initWeb3() {
@@ -62,7 +63,6 @@ async function initWeb3() {
         signer = provider.getSigner();
         contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
         updateWalletUI();
-        checkNftOwnership(); // Check NFT on auto-connect
       }
     } catch (e) {
       console.log("Auto-connect check skipped:", e.message);
@@ -75,21 +75,7 @@ function disconnectWallet() {
   signer = null;
   contract = null;
   updateWalletUI();
-  window.hasNftAccess = false;
   alert("Wallet Disconnected.");
-}
-
-async function checkNftOwnership() {
-  if (!userAddress || !provider) return;
-  try {
-    const nftContract = new ethers.Contract(NFT_CONTRACT_ADDRESS, ERC721_ABI, provider);
-    const balance = await nftContract.balanceOf(userAddress);
-    window.hasNftAccess = balance > 0;
-    console.log("NFT Access Verified:", window.hasNftAccess);
-  } catch (e) {
-    console.warn("NFT check failed:", e);
-    window.hasNftAccess = false;
-  }
 }
 
 function updateWalletUI() {
@@ -104,6 +90,20 @@ function updateWalletUI() {
   } else {
     if (connBtn) connBtn.classList.remove('hidden');
     if (info) info.classList.add('hidden');
+    has10kNFT = false;
+  }
+}
+
+async function checkNFTOwnership() {
+  if (!userAddress || !provider) return;
+  try {
+    const nftContract = new ethers.Contract(NFT_COLLECTION_ADDRESS, ERC721_ABI, provider);
+    const balance = await nftContract.balanceOf(userAddress);
+    has10kNFT = balance.gt(0);
+    console.log("10K Squad NFT Balance:", balance.toString(), "Access:", has10kNFT);
+  } catch (e) {
+    console.warn("NFT check failed:", e.message);
+    has10kNFT = false;
   }
 }
 
@@ -153,7 +153,7 @@ async function connectWallet() {
 
     updateWalletUI();
     fetchLeaderboard();
-    await checkNftOwnership();
+    await checkNFTOwnership();
     
     alert("Wallet Verified & Connected!");
   } catch (err) {
@@ -282,3 +282,4 @@ initWeb3();
 window.connectWallet = connectWallet;
 window.submitScoreToChain = submitScoreToChain;
 window.fetchLeaderboard = fetchLeaderboard;
+window.getHas10kNFT = () => has10kNFT;
