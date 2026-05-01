@@ -818,10 +818,9 @@
     cycleFrame++;
     score++;
     
-    // Animation cycle for player (Ping-pong 4-frame sequence: 0, 1, 2, 1)
+    // Animation cycle for player (3-frame sequence for better compatibility with new character)
     const animSpeed = boostActive ? 3 : 10; 
-    const runFrames = [0, 1, 2, 1];
-    player.animFrame = runFrames[Math.floor(score / animSpeed) % 4];
+    player.animFrame = Math.floor(score / animSpeed) % 3;
 
     // Spawn dust particles while running on ground
     if (!player.jumping && !player.ducking && frame % 4 === 0) {
@@ -1132,13 +1131,6 @@
     parallax.buildings.offset += 0.6;
     parallax.bushes.offset    += 1.0;
     
-    // Animate title screen character (selected)
-    const char = characters[currentCharIdx];
-    const tFrame = Math.floor(frame / 12) % 3;
-    if (char.run[tFrame].complete) {
-      drawImageNoWhite(char.run[tFrame], canvas.width / 2 - 45, groundY - 90, 90, 90);
-    }
-
     ctx.textAlign = 'center';
     ctx.font = 'bold 28px "Courier New"';
     ctx.fillStyle = '#ff69b4';
@@ -1150,14 +1142,28 @@
     // Lock Overlay for special characters
     const isLocked = (currentCharIdx === 6 && typeof window.getHas10kNFT === 'function' && !window.getHas10kNFT());
     if (isLocked) {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-        ctx.fillRect(canvas.width / 2 - 45, groundY - 110, 90, 110);
+        // Character is dimmed slightly instead of a grey box
+        ctx.globalAlpha = 0.5;
+        const char = characters[currentCharIdx];
+        const tFrame = Math.floor(frame / 12) % 3;
+        if (char.run[tFrame].complete) {
+          drawImageNoWhite(char.run[tFrame], canvas.width / 2 - 45, groundY - 90, 90, 90);
+        }
+        ctx.globalAlpha = 1.0;
+
         ctx.font = '24px "Courier New"';
         ctx.fillText('🔒', canvas.width / 2, groundY - 50);
         
-        ctx.font = 'bold 8px "Courier New"';
+        ctx.font = 'bold 10px "Courier New"';
         ctx.fillStyle = '#ff00ff';
-        ctx.fillText('LOCK: THE 10K SQUAD NFT', canvas.width / 2, groundY - 105);
+        ctx.fillText('EXCLUSIVE: THE 10K SQUAD NFT', canvas.width / 2, groundY - 105);
+    } else {
+        // Draw normal character
+        const char = characters[currentCharIdx];
+        const tFrame = Math.floor(frame / 12) % 3;
+        if (char.run[tFrame].complete) {
+          drawImageNoWhite(char.run[tFrame], canvas.width / 2 - 45, groundY - 90, 90, 90);
+        }
     }
 
     // Mobile Arrows & Selection Hints
