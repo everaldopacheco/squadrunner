@@ -162,14 +162,6 @@
   const JUMP_FORCE = -15;
   const GRAVITY = 0.55;
   const MAX_JUMPS = 2;
-  const CHAR_NAMES = [
-    "PARROT TRADOOOOR", 
-    "PARROT ROYAL", 
-    "PARROT CHAD", 
-    "PARROT JETPACK", 
-    "PARROT WHALE",
-    "PARROT NEON"
-  ];
 
   const player = {
     x: 80,
@@ -745,6 +737,7 @@
       }
       // Center click starts game
       else {
+        console.log("Center click at", x, y, "currentCharIdx:", currentCharIdx, "hasNft:", window.hasNftAccess);
         if (currentCharIdx === 6 && !window.hasNftAccess) {
           if (typeof playSound === 'function') playSound('collision');
           return;
@@ -1529,7 +1522,14 @@
   const introBtn = document.getElementById('intro-start-btn');
   if (introBtn && introOverlay) {
     introBtn.addEventListener('click', () => {
+      console.log("Intro button clicked");
       introOverlay.classList.add('fade-out');
+      // Set state to title explicitly
+      state = 'title';
+      // Remove from layout after fade to prevent blocking clicks
+      setTimeout(() => {
+        introOverlay.style.display = 'none';
+      }, 650);
       // Resume audio on this user gesture
       if (audioCtx.state === 'suspended') audioCtx.resume();
       if (sfx.bgMusic.paused && !isMuted) startMusic();
