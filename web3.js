@@ -162,7 +162,7 @@ async function submitScoreToChain() {
     const charIdVal = Math.floor(Number(data.charId) || 0);
 
     // Request signature from Supabase Backend
-    const resp = await fetch('https://zakhouunpnbierefgmoo.supabase.co/functions/v1/sign-score', {
+    const resp = await fetch('https://ilrhpqfrxsgllugxtymm.supabase.co/functions/v1/sign-score', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ player: userAddress, score: scoreVal, charId: charIdVal })
